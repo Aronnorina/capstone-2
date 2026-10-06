@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <title>WheelRentraGo | Rider/Driver Account</title>
+  <link href="style.build.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0b0b0b;
+      color: #e5e2e1;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .chamfer-clip {
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+
+    .chamfer-clip-sm {
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+
+    .chamfer-tr-bl {
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    }
+
+    .scan-line {
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 238, 252, 0.04) 50%);
+      background-size: 100% 4px;
+    }
+
+    .glow-border {
+      box-shadow: 0 0 0 1px #2A2A2A;
+      transition: all 0.3s;
+    }
+
+    .glow-border:hover {
+      box-shadow: 0 0 0 1px #ffb4a8, 0 0 8px rgba(255, 180, 168, 0.3);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ffb4a8 !important;
+      box-shadow: 0 0 15px rgba(255, 85, 64, 0.3);
+    }
+
+    .field-error {
+      display: none;
+      color: #ffb4ab;
+      font-size: 10px;
+      font-family: 'JetBrains Mono';
+      margin-top: 4px;
+    }
+
+    .field-invalid {
+      border-color: #ffb4ab !important;
+    }
+
+    .field-invalid~.field-error {
+      display: block;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0b0b0b
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff5540
+    }
+
+    @keyframes slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .animate-in {
+      animation: slide-in 0.3s ease forwards;
+    }
+  </style>
+</head>
+
+<body
+  class="font-body-md text-on-background bg-background overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+
+  <div class="fixed inset-0 scan-line opacity-20 pointer-events-none z-0"></div>
+
+  <!-- Topbar -->
+  <header
+    class="fixed top-0 w-full z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.3)]">
+    <div class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+      <a href="index.html"
+        class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter">WheelRentraGo</a>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="fleet.html"
+          class="text-on-background opacity-70 hover:opacity-100 hover:text-primary font-label-mono text-label-mono uppercase transition-colors">Catalog</a>
+        <a href="tracking.html"
+          class="text-on-background opacity-70 hover:opacity-100 hover:text-primary font-label-mono text-label-mono uppercase transition-colors">Tracking</a>
+        <a href="support.html"
+          class="text-on-background opacity-70 hover:opacity-100 hover:text-primary font-label-mono text-label-mono uppercase transition-colors">Support</a>
+        <a href="account.html"
+          class="text-primary border-b-2 border-primary pb-1 font-label-mono text-label-mono uppercase">Account</a>
+      </nav>
+      <div class="flex items-center gap-4">
+        <a href="fleet.html"
+          class="hidden sm:inline-block bg-primary-container text-on-primary-container px-6 py-2 chamfer-clip-sm font-bold uppercase tracking-tighter text-sm hover:brightness-110 active:scale-95 transition-all">Rent
+          Now</a>
+        <button onclick="doLogout()"
+          class="flex items-center gap-2 border border-error/40 text-error px-4 py-2 chamfer-clip-sm font-label-mono text-xs uppercase hover:bg-error/10 transition-colors">
+          <span class="material-symbols-outlined text-sm">logout</span> Log Out
+        </button>
+        <button onclick="document.getElementById('mobile-menu-panel').classList.toggle('hidden')"
+          class="md:hidden flex items-center justify-center w-9 h-9 text-primary">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      </div>
+    </div>
+    <div id="mobile-menu-panel" class="hidden md:hidden bg-surface-container-low border-t border-outline-variant">
+      <div class="flex flex-col px-6 py-2">
+        <a href="fleet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Catalog</a>
+        <a href="tracking.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Tracking</a>
+        <a href="support.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Support</a>
+        <a href="account.html" class="py-3 font-label-mono text-label-mono text-primary uppercase">Account</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex pt-24 min-h-screen">
+
+    <!-- Sidebar -->
+    <aside
+      class="hidden lg:flex flex-col h-screen sticky top-24 w-64 py-8 space-y-6 bg-surface-container-low border-r border-outline-variant">
+      <div class="px-6 flex items-center gap-4">
+        <div
+          class="w-14 h-14 rounded-full bg-primary-container/20 border-2 border-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-2xl"
+            style="font-variation-settings:'FILL' 1">person</span>
+        </div>
+        <div>
+          <div class="font-label-mono text-label-mono font-bold text-on-surface" id="sidebar-name">—</div>
+          <div class="text-[10px] text-secondary uppercase font-bold tracking-widest">Elite Rider/Driver</div>
+        </div>
+      </div>
+      <nav class="flex-1 space-y-1">
+        <a href="index.html"
+          class="flex items-center gap-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors group">
+          <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">home</span><span
+            class="font-label-mono text-label-mono">Home</span>
+        </a>
+        <a href="fleet.html"
+          class="flex items-center gap-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors group">
+          <span
+            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">directions_car</span><span
+            class="font-label-mono text-label-mono">Garage</span>
+        </a>
+        <a href="tracking.html"
+          class="flex items-center gap-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors group">
+          <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">explore</span><span
+            class="font-label-mono text-label-mono">Maps</span>
+        </a>
+        <a href="wallet.html"
+          class="flex items-center gap-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors group">
+          <span
+            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">account_balance_wallet</span><span
+            class="font-label-mono text-label-mono">Wallet</span>
+        </a>
+        <a href="account.html"
+          class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-r-full mr-4 p-3 group">
+          <span class="material-symbols-outlined">person</span><span
+            class="font-label-mono text-label-mono">Account</span>
+        </a>
+        <a href="loyalty.html"
+          class="flex items-center gap-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors group">
+          <span
+            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">military_tech</span><span
+            class="font-label-mono text-label-mono">Loyalty</span>
+        </a>
+      </nav>
+      <div class="px-4 pb-8 space-y-2 border-t border-outline-variant/30 pt-4">
+        <a href="support.html"
+          class="flex items-center gap-4 p-3 text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">help</span><span
+            class="font-label-mono text-label-mono">Support</span>
+        </a>
+        <button onclick="doLogout()"
+          class="flex items-center gap-4 p-3 text-error hover:text-error/80 transition-colors w-full text-left">
+          <span class="material-symbols-outlined">logout</span><span class="font-label-mono text-label-mono">Log
+            Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 px-4 md:px-margin-desktop py-8 max-w-7xl mx-auto relative z-10">
+
+      <!-- Header -->
+      <section class="mb-10 border-l-4 border-primary pl-6">
+        <h1 class="font-display-lg text-display-lg uppercase tracking-tighter leading-none mb-1">Rider/Driver <span
+            class="text-primary italic">Profile</span></h1>
+        <p class="font-label-mono text-xs text-on-surface-variant uppercase tracking-widest opacity-80">Command center
+          for your fleet access and mission history.</p>
+      </section>
+
+      <!-- Stat cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter mb-10">
+        <div class="bg-surface-container-low border border-outline-variant chamfer-clip p-5 glow-border">
+          <div class="font-label-mono text-[10px] text-secondary uppercase mb-1">Bookings</div>
+          <div class="font-display-lg text-3xl text-on-background" id="stat-bookings">0</div>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant chamfer-clip p-5 glow-border">
+          <div class="font-label-mono text-[10px] text-primary uppercase mb-1">Rider/Driver Status</div>
+          <a href="loyalty.html" class="font-display-lg text-xl text-primary hover:underline" id="stat-tier">—</a>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant chamfer-clip p-5 glow-border">
+          <div class="font-label-mono text-[10px] text-secondary uppercase mb-1">Loyalty Points</div>
+          <a href="loyalty.html" class="font-display-lg text-3xl text-on-background hover:underline" id="stat-points">0</a>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant chamfer-clip p-5 glow-border">
+          <div class="font-label-mono text-[10px] text-primary uppercase mb-1">Member Since</div>
+          <div class="font-label-mono text-sm text-on-background" id="stat-since">—</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+
+        <!-- Profile edit -->
+        <section class="bg-surface-container-low border border-outline-variant chamfer-clip p-0">
+          <div
+            class="bg-outline-variant/20 px-6 py-3 flex items-center justify-between border-b border-outline-variant">
+            <span class="font-label-mono text-xs text-primary uppercase font-bold">Rider/Driver Identity</span>
+            <span class="font-label-mono text-[9px] text-on-surface-variant/50" id="profile-id-label">ID: —</span>
+          </div>
+          <div class="p-6 space-y-5">
+            <div id="profile-success"
+              class="hidden bg-secondary-container/10 border border-secondary/30 px-4 py-2 font-label-mono text-xs text-secondary chamfer-clip-sm">
+              Profile updated successfully.</div>
+
+            <div class="space-y-2">
+              <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Full Name</label>
+              <input id="p-name" type="text"
+                class="w-full bg-black/60 border-b border-outline-variant py-3 px-4 font-label-mono text-secondary" />
+              <span class="field-error">Name required.</span>
+            </div>
+            <div class="space-y-2">
+              <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Email
+                Address</label>
+              <input id="p-email" type="email" disabled
+                class="w-full bg-black/30 border-b border-outline-variant/30 py-3 px-4 font-label-mono text-on-surface-variant/60 cursor-not-allowed" />
+              <span class="font-label-mono text-[9px] text-on-surface-variant/40">Email cannot be changed after
+                registration.</span>
+            </div>
+            <div class="space-y-2">
+              <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Driver's License
+                No.</label>
+              <input id="p-license" type="text"
+                class="w-full bg-black/60 border-b border-outline-variant py-3 px-4 font-label-mono text-secondary" />
+              <span class="field-error">License number required.</span>
+            </div>
+            <button onclick="saveProfile()"
+              class="w-full py-3 bg-primary-container text-on-primary-container font-label-mono text-label-mono uppercase font-bold chamfer-clip-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-sm">save</span> Save Profile
+            </button>
+          </div>
+        </section>
+
+        <!-- Booking history -->
+        <section class="bg-surface-container-low border border-outline-variant chamfer-clip p-0">
+          <div
+            class="bg-outline-variant/20 px-6 py-3 flex items-center justify-between border-b border-outline-variant">
+            <span class="font-label-mono text-xs text-primary uppercase font-bold">Mission History</span>
+            <button onclick="clearHistory()"
+              class="font-label-mono text-[9px] text-error/60 hover:text-error transition-colors uppercase">Clear
+              All</button>
+          </div>
+          <div class="p-6" id="bookings-list">
+            <div class="text-center py-10">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 block mb-3">receipt_long</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/50 uppercase">No missions on record yet.</p>
+              <a href="fleet.html"
+                class="inline-block mt-4 font-label-mono text-xs text-secondary uppercase hover:text-primary transition-colors">Browse
+                fleet →</a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Danger zone -->
+      <section class="mt-8 border border-error/20 chamfer-clip p-6">
+        <div class="font-label-mono text-[10px] text-error uppercase font-bold mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">warning</span> Danger Zone
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div>
+            <p class="font-label-mono text-sm text-on-background">Clear all booking data</p>
+            <p class="font-label-mono text-[10px] text-on-surface-variant/60 mt-1">Removes selected vehicle and all
+              booking records from this device.</p>
+          </div>
+          <button onclick="clearHistory()"
+            class="px-6 py-2 border border-error text-error font-label-mono text-xs uppercase chamfer-clip-sm hover:bg-error/10 transition-colors">Clear
+            Data</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <div
+    class="lg:hidden fixed bottom-0 w-full z-50 bg-background/95 backdrop-blur-lg border-t border-outline-variant flex justify-around py-3">
+    <a href="index.html" class="flex flex-col items-center gap-1 text-on-surface-variant"><span
+        class="material-symbols-outlined">home</span><span class="font-label-mono text-[8px] uppercase">Home</span></a>
+    <a href="fleet.html" class="flex flex-col items-center gap-1 text-on-surface-variant"><span
+        class="material-symbols-outlined">search</span><span
+        class="font-label-mono text-[8px] uppercase">Catalog</span></a>
+    <a href="fleet.html" class="-mt-6 bg-primary-container p-3 rounded-full shadow-[0_0_15px_rgba(255,85,64,0.5)]"><span
+        class="material-symbols-outlined text-on-primary-container">directions_car</span></a>
+    <a href="tracking.html" class="flex flex-col items-center gap-1 text-on-surface-variant"><span
+        class="material-symbols-outlined">location_on</span><span
+        class="font-label-mono text-[8px] uppercase">Track</span></a>
+    <a href="account.html" class="flex flex-col items-center gap-1 text-primary"><span
+        class="material-symbols-outlined">person</span><span
+        class="font-label-mono text-[8px] uppercase">Profile</span></a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    // Require login
+    WRG.api.requireAuth().then(session => {
+      if (!session) return;
+      loadProfile(session);
+      loadBookings();
+      loadLoyalty();
+    });
+
+    function loadLoyalty() {
+      WRG.api.getLoyaltyStatus().then(status => {
+        document.getElementById('stat-tier').textContent = status.tierLabel.toUpperCase();
+        document.getElementById('stat-points').textContent = status.points.toLocaleString('en-PH');
+      });
+    }
+
+    function loadProfile(session) {
+      document.getElementById('sidebar-name').textContent = session.name || 'Rider/Driver';
+      document.getElementById('p-name').value = session.name || '';
+      document.getElementById('p-email').value = session.email || '';
+      document.getElementById('p-license').value = session.license || '';
+      document.getElementById('profile-id-label').textContent = 'ID: ' + (session.id || '—');
+      const since = session.joinedAt ? new Date(session.joinedAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short' }) : '—';
+      document.getElementById('stat-since').textContent = since;
+    }
+
+    let myReviewsMap = {};
+    const ratingState = {};
+
+    function loadBookings() {
+      Promise.all([WRG.api.getMyBookings(), WRG.api.getMyReviews()]).then(([bookings, reviews]) => {
+        myReviewsMap = {};
+        reviews.forEach(r => { myReviewsMap[String(r.bookingId)] = r; });
+
+        document.getElementById('stat-bookings').textContent = bookings.length;
+        const container = document.getElementById('bookings-list');
+        if (!bookings.length) return;
+        container.innerHTML = bookings.map(b => renderBookingCard(b)).join('') + `<a href="fleet.html" class="block text-center font-label-mono text-xs text-secondary uppercase hover:text-primary transition-colors mt-4 pb-1">+ Book another vehicle →</a>`;
+      });
+    }
+
+    function renderBookingCard(b) {
+      const bookingId = String(b.id);
+      const vehicleLabel = b.vehicleName || b.vehicle_name || ((b.vehicleId || b.vehicle_id) ? (b.vehicleId || b.vehicle_id).replace(/-/g, ' ').toUpperCase() : 'VEHICLE');
+      const existingReview = myReviewsMap[bookingId];
+      const isCompleted = b.status === 'completed';
+      const isCancellable = b.status === 'pending' || b.status === 'approved';
+
+      const cancelBlock = isCancellable ? `
+        <div class="mt-3 pt-3 border-t border-outline-variant/30">
+          <button type="button" onclick="cancelBooking('${bookingId}', '${b.status}')" class="font-label-mono text-[10px] text-error/70 uppercase hover:text-error transition-colors">Cancel Booking</button>
+        </div>` : '';
+
+      let reviewBlock = '';
+      if (isCompleted && existingReview) {
+        reviewBlock = `
+        <div class="mt-3 pt-3 border-t border-outline-variant/30">
+          <div class="flex items-center gap-0.5 text-secondary mb-1">${starsHtml(existingReview.rating)}</div>
+          ${existingReview.comment ? `<p class="font-label-mono text-[10px] text-on-surface-variant/70 italic">"${escapeHtml(existingReview.comment)}"</p>` : ''}
+        </div>`;
+      } else if (isCompleted) {
+        reviewBlock = `
+        <div class="mt-3 pt-3 border-t border-outline-variant/30">
+          <button type="button" onclick="toggleReviewForm('${bookingId}')" class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors">+ Leave a Review</button>
+          <div id="review-form-${bookingId}" class="hidden mt-3 space-y-2">
+            <div class="flex gap-1" id="stars-${bookingId}">
+              ${[1, 2, 3, 4, 5].map(n => `<span class="material-symbols-outlined text-lg cursor-pointer text-on-surface-variant/40" data-val="${n}" onclick="setRating('${bookingId}', ${n})">star</span>`).join('')}
+            </div>
+            <textarea id="comment-${bookingId}" rows="2" maxlength="600" placeholder="How was your rental?" class="w-full bg-black/40 border border-outline-variant text-xs font-label-mono p-2 chamfer-clip-sm"></textarea>
+            <button type="button" onclick="submitReview('${bookingId}', ${JSON.stringify(b.vehicleId || b.vehicle_id || '')}, ${JSON.stringify(b.vehicleName || b.vehicle_name || '')})" class="px-4 py-2 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm hover:brightness-110 active:scale-95 transition-all">Submit Review</button>
+            <div id="review-err-${bookingId}" class="hidden font-label-mono text-[9px] text-error uppercase"></div>
+          </div>
+        </div>`;
+      }
+
+      return `
+        <div class="animate-in border border-outline-variant/40 chamfer-clip-sm p-4 mb-3 bg-surface-container">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="font-label-mono text-xs text-primary uppercase">${b.id}</div>
+              <div class="font-headline-lg text-base uppercase mt-1">${vehicleLabel}</div>
+            </div>
+            <span class="font-label-mono text-[9px] px-2 py-1 border ${b.status === 'completed' ? 'border-secondary/40 text-secondary' : (b.status === 'cancelled' || b.status === 'rejected') ? 'border-error/40 text-error' : 'border-outline-variant text-on-surface-variant'} uppercase">${b.status || 'PENDING'}</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Duration</div><div class="font-label-mono text-xs">${b.days || '—'} days</div></div>
+            <div><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Total</div><div class="font-label-mono text-xs text-primary">${b.total ? WRG.peso(b.total) : '—'}</div></div>
+            <div><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Date</div><div class="font-label-mono text-xs">${b.createdAt || b.created_at ? new Date(b.createdAt || b.created_at).toLocaleDateString('en-PH') : '—'}</div></div>
+          </div>
+          ${reviewBlock}
+          ${cancelBlock}
+        </div>`;
+    }
+
+    function starsHtml(rating) {
+      return [1, 2, 3, 4, 5].map(n => `<span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' ${n <= rating ? 1 : 0}">star</span>`).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function toggleReviewForm(bookingId) {
+      const el = document.getElementById('review-form-' + bookingId);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function setRating(bookingId, val) {
+      ratingState[bookingId] = val;
+      document.querySelectorAll(`#stars-${bookingId} span`).forEach(el => {
+        const v = Number(el.dataset.val);
+        el.style.fontVariationSettings = "'FILL' " + (v <= val ? 1 : 0);
+        el.classList.toggle('text-secondary', v <= val);
+        el.classList.toggle('text-on-surface-variant/40', v > val);
+      });
+    }
+
+    function submitReview(bookingId, vehicleId, vehicleName) {
+      const rating = ratingState[bookingId];
+      const commentEl = document.getElementById('comment-' + bookingId);
+      const errEl = document.getElementById('review-err-' + bookingId);
+      const comment = commentEl ? commentEl.value.trim() : '';
+      errEl.classList.add('hidden');
+      if (!rating) {
+        errEl.textContent = 'Please select a star rating.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      WRG.api.submitReview({ bookingId, vehicleId, vehicleName, rating, comment }).then(() => {
+        WRG.toast('Thanks for your review!');
+        loadBookings();
+      }).catch(err => {
+        errEl.textContent = err.message || 'Failed to submit review.';
+        errEl.classList.remove('hidden');
+      });
+    }
+
+    function cancelBooking(bookingId, status) {
+      if (!confirm('Cancel this booking? This cannot be undone.')) return;
+      WRG.api.cancelReservation(bookingId, status).then(() => {
+        WRG.toast('Booking cancelled');
+        loadBookings();
+        loadLoyalty();
+      }).catch(err => {
+        WRG.toast(err.message || 'Failed to cancel booking');
+      });
+    }
+
+    function saveProfile() {
+      const name = document.getElementById('p-name').value.trim();
+      const license = document.getElementById('p-license').value.trim();
+      if (!name) { document.getElementById('p-name').classList.add('field-invalid'); return; }
+      document.getElementById('p-name').classList.remove('field-invalid');
+      WRG.api.updateProfile({ name, license }).then(session => {
+        loadProfile(session);
+        const el = document.getElementById('profile-success');
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 3000);
+        WRG.toast('Profile updated');
+      });
+    }
+
+    function clearHistory() {
+      if (!confirm('Clear all booking data from this device?')) return;
+      WRG.api.clearBooking().then(() => {
+        loadBookings();
+        loadLoyalty();
+        WRG.toast('Booking data cleared');
+      });
+    }
+
+    function doLogout() {
+      WRG.api.logout().then(() => {
+        WRG.toast('Logged out');
+        setTimeout(() => window.location.href = 'login.html', 600);
+      });
+    }
+  </script>
+</body>
+
+</html>

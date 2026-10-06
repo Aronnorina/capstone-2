@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <title>WheelRentraGo | Admin Dashboard</title>
+  <link href="style.build.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #e5e2e1;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .chamfer {
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+
+    .chamfer-sm {
+      clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+
+    .scan-line {
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 238, 252, .04) 50%);
+      background-size: 100% 4px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #ffb4a8 !important;
+      box-shadow: 0 0 10px rgba(255, 85, 64, .2);
+    }
+
+    .tab-btn.active {
+      background: #ff5540;
+      color: #5c0000;
+      font-weight: 700;
+    }
+
+    .tab-btn {
+      transition: all .2s;
+    }
+
+    .stat-glow-red {
+      box-shadow: 0 0 20px rgba(255, 85, 64, .15);
+    }
+
+    .stat-glow-cyan {
+      box-shadow: 0 0 20px rgba(0, 238, 252, .12);
+    }
+
+    tr.admin-row:hover td {
+      background: rgba(255, 85, 64, .04);
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0b0b0b
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff5540
+    }
+
+    .badge-confirmed {
+      background: rgba(61, 220, 132, .12);
+      color: #3ddc84;
+      border: 1px solid rgba(61, 220, 132, .3);
+    }
+
+    .badge-pending {
+      background: rgba(255, 180, 168, .08);
+      color: #ffb4a8;
+      border: 1px solid rgba(255, 180, 168, .3);
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0)
+      }
+
+      20% {
+        transform: translate(-1px, 1px)
+      }
+
+      40% {
+        transform: translate(1px, -1px)
+      }
+
+      100% {
+        transform: translate(0)
+      }
+    }
+  </style>
+</head>
+
+<body class="font-body-md min-h-screen">
+
+  <div class="fixed inset-0 scan-line opacity-20 pointer-events-none z-0"></div>
+
+  <!-- ══ ADMIN LOGIN SCREEN ══════════════════════════════════════════════════ -->
+  <div id="admin-login-screen" class="min-h-screen flex items-center justify-center px-4 relative z-10">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 bg-error-container/30 border border-error px-3 py-1 mb-4">
+          <span class="material-symbols-outlined text-error text-sm"
+            style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
+          <span class="font-label-mono text-[10px] text-error uppercase tracking-widest">Admin Access Only</span>
+        </div>
+        <h1 class="font-display-lg text-4xl uppercase italic font-black"
+          style="text-shadow:2px 0 #ff5540,-2px 0 #00eefc">
+          ADMIN <span class="text-primary-container">PORTAL</span>
+        </h1>
+        <p class="font-label-mono text-xs text-on-surface-variant mt-2 uppercase tracking-widest">WheelRentraGo Control
+          Center</p>
+      </div>
+      <div class="bg-surface-container-low border border-outline-variant chamfer p-8 space-y-5">
+        <div id="login-err"
+          class="hidden bg-error-container/20 border border-error/50 px-4 py-2 font-label-mono text-xs text-error chamfer-sm">
+        </div>
+        <div class="space-y-2">
+          <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Admin Email</label>
+          <input id="admin-email" type="email" placeholder="you@wheelrentrago.com" autocomplete="username"
+            class="w-full bg-black/60 border-b border-outline-variant py-4 px-4 font-label-mono text-secondary placeholder-white/20" />
+        </div>
+        <div class="space-y-2">
+          <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Admin Password</label>
+          <div class="relative">
+            <input id="admin-pass" type="password" placeholder="Enter admin password" autocomplete="current-password"
+              class="w-full bg-black/60 border-b border-outline-variant py-4 px-4 font-label-mono text-secondary placeholder-white/20" />
+            <button type="button" onclick="togglePass()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-sm hover:text-primary">visibility</button>
+          </div>
+          <!-- This account must exist in Supabase Auth AND have role='admin'
+               in the profiles table — see admin-rls-policies.sql. -->
+        </div>
+        <button id="admin-login-btn" onclick="doAdminLogin()"
+          class="w-full py-4 bg-primary-container text-on-primary-container font-display-lg text-base uppercase font-black tracking-widest hover:brightness-110 active:scale-95 transition-all chamfer-sm flex items-center justify-center gap-3 disabled:opacity-50">
+          <span class="material-symbols-outlined">login</span> Access Dashboard
+        </button>
+        <div class="text-center">
+          <a href="index.html"
+            class="font-label-mono text-[10px] text-on-surface-variant/50 uppercase hover:text-secondary transition-colors">←
+            Back to Site</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN DASHBOARD ══════════════════════════════════════════════════════ -->
+  <div id="admin-dashboard" class="hidden min-h-screen flex flex-col">
+
+    <!-- Topbar -->
+    <header
+      class="sticky top-0 z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.25)] flex items-center justify-between px-6 py-3">
+      <div class="flex items-center gap-4">
+        <div class="w-8 h-8 bg-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-on-primary-container text-base"
+            style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
+        </div>
+        <div>
+          <div class="font-display-lg text-sm font-bold text-primary italic uppercase tracking-tighter">WheelRentraGo
+          </div>
+          <div class="font-label-mono text-[9px] text-on-surface-variant/60 uppercase">Admin Dashboard</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div
+          class="hidden sm:flex items-center gap-2 bg-surface-container-high px-3 py-1 border border-outline-variant">
+          <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+          <span class="font-label-mono text-[10px] uppercase">System Online</span>
+        </div>
+        <button onclick="refreshDashboard()"
+          class="material-symbols-outlined p-2 hover:bg-surface-variant rounded transition-colors"
+          title="Refresh">refresh</button>
+        <a href="index.html" target="_blank"
+          class="material-symbols-outlined p-2 hover:bg-surface-variant rounded transition-colors"
+          title="View Site">open_in_new</a>
+        <button onclick="doAdminLogout()"
+          class="flex items-center gap-2 border border-error/40 text-error px-4 py-1.5 chamfer-sm font-label-mono text-xs uppercase hover:bg-error/10 transition-colors">
+          <span class="material-symbols-outlined text-sm">logout</span> <span class="hidden sm:inline">Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="flex flex-1">
+
+      <!-- Sidebar -->
+      <aside
+        class="hidden lg:flex flex-col w-56 bg-surface-container-low border-r border-outline-variant py-6 space-y-1 sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto">
+        <button onclick="showTab('overview')"
+          class="tab-btn active flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full"
+          data-tab="overview">
+          <span class="material-symbols-outlined text-base">dashboard</span> Overview
+        </button>
+        <button onclick="showTab('reservations')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="reservations">
+          <span class="material-symbols-outlined text-base">event_available</span> Reservations
+          <span id="reservation-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <button onclick="showTab('transactions')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="transactions">
+          <span class="material-symbols-outlined text-base">receipt_long</span> Transactions
+        </button>
+        <button onclick="showTab('users')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="users">
+          <span class="material-symbols-outlined text-base">group</span> Users
+        </button>
+        <button onclick="showTab('fleet')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="fleet">
+          <span class="material-symbols-outlined text-base">directions_car</span> Fleet
+        </button>
+        <button onclick="showTab('verification')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="verification">
+          <span class="material-symbols-outlined text-base">verified_user</span> Verification
+          <span id="verif-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <button onclick="showTab('utilization')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="utilization">
+          <span class="material-symbols-outlined text-base">monitoring</span> Utilization
+        </button>
+        <button onclick="showTab('maintenance')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="maintenance">
+          <span class="material-symbols-outlined text-base">build</span> Maintenance
+          <span id="maint-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <button onclick="showTab('revenue')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="revenue">
+          <span class="material-symbols-outlined text-base">payments</span> Revenue
+        </button>
+        <button onclick="showTab('customers')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="customers">
+          <span class="material-symbols-outlined text-base">badge</span> Customers
+        </button>
+        <button onclick="showTab('recommendations')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="recommendations">
+          <span class="material-symbols-outlined text-base">psychology</span> Recommendations
+        </button>
+        <button onclick="showTab('overdue')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="overdue">
+          <span class="material-symbols-outlined text-base">running_with_errors</span> Overdue
+          <span id="overdue-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <button onclick="showTab('fuelmileage')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="fuelmileage">
+          <span class="material-symbols-outlined text-base">local_gas_station</span> Fuel &amp; Mileage
+        </button>
+        <button onclick="showTab('notifications')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+          data-tab="notifications">
+          <span class="material-symbols-outlined text-base">mail</span> Notification Log
+        </button>
+        <button onclick="showTab('support')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="support">
+          <span class="material-symbols-outlined text-base">support_agent</span> Support Tickets
+          <span id="support-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <button onclick="showTab('reviews')"
+          class="tab-btn flex items-center gap-3 px-4 py-3 text-left font-label-mono text-xs uppercase w-full text-on-surface-variant hover:bg-surface-variant transition-colors relative"
+          data-tab="reviews">
+          <span class="material-symbols-outlined text-base">rate_review</span> Reviews
+          <span id="reviews-badge"
+            class="hidden absolute right-3 top-2 bg-error text-black text-[9px] font-bold px-1.5 rounded-full"></span>
+        </button>
+        <div class="border-t border-outline-variant/30 mt-4 pt-4 px-4">
+          <div class="font-label-mono text-[9px] text-on-surface-variant/40 uppercase">Admin</div>
+          <div class="font-label-mono text-xs text-primary mt-1" id="admin-name-sidebar">Administrator</div>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 p-6 overflow-y-auto">
+
+        <!-- Mobile tab nav -->
+        <div class="flex lg:hidden gap-2 mb-6 overflow-x-auto pb-2">
+          <button onclick="showTab('overview')"
+            class="tab-btn active flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm"
+            data-tab="overview">Overview</button>
+          <button onclick="showTab('reservations')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="reservations">Reservations</button>
+          <button onclick="showTab('transactions')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="transactions">Transactions</button>
+          <button onclick="showTab('users')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="users">Users</button>
+          <button onclick="showTab('fleet')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="fleet">Fleet</button>
+          <button onclick="showTab('verification')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="verification">Verification</button>
+          <button onclick="showTab('utilization')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="utilization">Utilization</button>
+          <button onclick="showTab('maintenance')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="maintenance">Maintenance</button>
+          <button onclick="showTab('revenue')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="revenue">Revenue</button>
+          <button onclick="showTab('customers')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="customers">Customers</button>
+          <button onclick="showTab('recommendations')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="recommendations">Recommendations</button>
+          <button onclick="showTab('overdue')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="overdue">Overdue</button>
+          <button onclick="showTab('fuelmileage')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="fuelmileage">Fuel &amp; Mileage</button>
+          <button onclick="showTab('notifications')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="notifications">Notification Log</button>
+          <button onclick="showTab('support')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="support">Support Tickets</button>
+          <button onclick="showTab('reviews')"
+            class="tab-btn flex-shrink-0 px-4 py-2 font-label-mono text-xs uppercase chamfer-sm text-on-surface-variant border border-outline-variant"
+            data-tab="reviews">Reviews</button>
+        </div>
+
+        <!-- ── OVERVIEW TAB ─────────────────────────────────── -->
+        <section id="tab-overview">
+          <div class="mb-6 border-l-4 border-primary pl-4">
+            <h2 class="font-display-lg text-2xl uppercase italic font-bold">Command <span
+                class="text-primary-container">Overview</span></h2>
+            <p class="font-label-mono text-xs text-on-surface-variant mt-1">Real-time fleet intelligence dashboard</p>
+          </div>
+
+          <!-- Stat cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">receipt_long</span> Total Bookings</div>
+              <div class="font-display-lg text-4xl font-bold text-on-background" id="stat-total-bookings">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">group</span> Registered Users</div>
+              <div class="font-display-lg text-4xl font-bold text-on-background" id="stat-total-users">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">paid</span> Total Revenue</div>
+              <div class="font-display-lg text-2xl font-bold text-primary" id="stat-revenue">₱0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">directions_car</span> Fleet Units</div>
+              <div class="font-display-lg text-4xl font-bold text-on-background" id="stat-fleet-units">0</div>
+            </div>
+          </div>
+
+          <!-- Recent bookings table -->
+          <div class="bg-surface-container-low border border-outline-variant chamfer mb-6">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-outline-variant">
+              <span class="font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2"><span
+                  class="material-symbols-outlined text-sm">schedule</span> Recent Bookings</span>
+              <button onclick="showTab('reservations')"
+                class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors">View
+                All →</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                    <th class="px-5 py-3 text-left uppercase">Ref ID</th>
+                    <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-3 text-left uppercase">Days</th>
+                    <th class="px-5 py-3 text-left uppercase">Total</th>
+                    <th class="px-5 py-3 text-left uppercase">Status</th>
+                    <th class="px-5 py-3 text-left uppercase">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-recent-tbody">
+                  <tr>
+                    <td colspan="6" class="px-5 py-6 text-center text-on-surface-variant/40">No bookings yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Fleet status -->
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div
+              class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">electric_car</span> Fleet Status
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-y divide-outline-variant/30"
+              id="overview-fleet-grid"></div>
+          </div>
+        </section>
+
+        <!-- ── RESERVATIONS TAB (Report 1: Vehicle Reservation Report) ── -->
+        <section id="tab-reservations" class="hidden" x-data>
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Vehicle Reservation <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Every reservation request, before the
+                vehicle ever leaves the lot</p>
+            </div>
+            <div class="flex gap-3">
+              <input type="text" placeholder="Search by ID or vehicle…"
+                x-model="$store.reservations.search"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-52" />
+              <button onclick="exportReservations()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Reservation ID</th>
+                    <th class="px-5 py-4 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Customer</th>
+                    <th class="px-5 py-4 text-left uppercase">Days Requested</th>
+                    <th class="px-5 py-4 text-right uppercase">Est. Total</th>
+                    <th class="px-5 py-4 text-left uppercase">Reservation Date</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-if="$store.reservations.filtered().length === 0">
+                    <tr>
+                      <td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No reservations on
+                        record</td>
+                    </tr>
+                  </template>
+                  <template x-for="b in $store.reservations.filtered()" :key="b.id">
+                    <tr class="admin-row border-b border-outline-variant/20">
+                      <td class="px-5 py-3 text-primary font-bold" x-text="b.id"></td>
+                      <td class="px-5 py-3" x-text="(b.vehicleId || '—').replace(/-/g, ' ').toUpperCase()"></td>
+                      <td class="px-5 py-3 text-on-surface-variant" x-text="b.rider?.name || b.riderName || '—'"></td>
+                      <td class="px-5 py-3" x-text="b.days || '—'"></td>
+                      <td class="px-5 py-3 text-right text-primary"
+                        x-text="b.total ? WRG.peso(b.total) : '—'"></td>
+                      <td class="px-5 py-3 text-on-surface-variant/60"
+                        x-text="b.reservationDate ? new Date(b.reservationDate).toLocaleDateString('en-PH') : '—'">
+                      </td>
+                      <td class="px-5 py-3">
+                        <span class="px-2 py-0.5 text-[9px] uppercase"
+                          :class="['approved', 'ongoing', 'completed', 'in_progress', 'resolved'].includes(b.status) ? 'badge-confirmed' : (['pending', 'open'].includes(b.status) ? 'badge-pending' : '')"
+                          :style="(b.status === 'rejected' || b.status === 'cancelled') ? 'background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)' : ''"
+                          x-text="(b.status || '—').toUpperCase()"></span>
+                      </td>
+                      <td class="px-5 py-3">
+                        <button x-show="b.status === 'pending'" @click="approveReservation(b.id)"
+                          class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 mr-1 transition-colors">Approve</button>
+                        <button x-show="b.status === 'pending'" @click="rejectReservationRow(b.id)"
+                          class="font-label-mono text-[9px] uppercase text-error/60 hover:text-error border border-error/20 hover:border-error px-2 py-1 transition-colors">Reject</button>
+                        <button x-show="b.status === 'approved'" @click="markPickedUpRow(b.id)"
+                          class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 transition-colors">Mark
+                          Picked Up</button>
+                        <span x-show="!['pending', 'approved'].includes(b.status)">—</span>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── TRANSACTIONS TAB (Report 2: Rental Transaction Report) ── -->
+        <section id="tab-transactions" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Rental Transaction <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Approved reservations from vehicle pickup
+                through return</p>
+            </div>
+            <div class="flex gap-3">
+              <input id="transaction-search" type="text" placeholder="Search by ID or vehicle…"
+                oninput="filterTransactions()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-52" />
+              <button onclick="exportTransactions()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Transaction ID</th>
+                    <th class="px-5 py-4 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Renter</th>
+                    <th class="px-5 py-4 text-left uppercase">Pickup Date</th>
+                    <th class="px-5 py-4 text-left uppercase">Return Date</th>
+                    <th class="px-5 py-4 text-right uppercase">Total</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-transactions" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">receipt_long</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No active or completed
+                transactions yet — reservations become transactions once approved and picked up</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── USERS TAB ──────────────────────────────────── -->
+        <section id="tab-users" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Rider/Driver <span
+                  class="text-primary-container">Registry</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">All registered system users</p>
+            </div>
+            <input id="user-search" type="text" placeholder="Search by name or email…" oninput="filterUsers()"
+              class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-56" />
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">User ID</th>
+                    <th class="px-5 py-4 text-left uppercase">Name</th>
+                    <th class="px-5 py-4 text-left uppercase">Email</th>
+                    <th class="px-5 py-4 text-left uppercase">License</th>
+                    <th class="px-5 py-4 text-left uppercase">Role</th>
+                    <th class="px-5 py-4 text-left uppercase">Joined</th>
+                    <th class="px-5 py-4 text-left uppercase">Assigned Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-users" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">group</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No users registered yet</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── FLEET TAB ──────────────────────────────────── -->
+        <section id="tab-fleet" class="hidden">
+          <div class="mb-6 border-l-4 border-primary pl-4">
+            <h2 class="font-display-lg text-2xl uppercase italic font-bold">Fleet <span
+                class="text-primary-container">Management</span></h2>
+            <p class="font-label-mono text-xs text-on-surface-variant mt-1">Vehicle inventory and availability status
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="admin-fleet-grid"></div>
+        </section>
+
+        <!-- ── VERIFICATION TAB ───────────────────────────────── -->
+        <section id="tab-verification" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Renter <span
+                  class="text-primary-container">Verification</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">ID / clearance review queue &amp; approval
+              </p>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Rider/Driver</th>
+                    <th class="px-5 py-4 text-left uppercase">Email</th>
+                    <th class="px-5 py-4 text-left uppercase">Deposit</th>
+                    <th class="px-5 py-4 text-left uppercase">AI Score</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Submitted</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="verification-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-verifications" class="hidden py-12 text-center">
+              <span
+                class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">verified_user</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No verification submissions yet
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── UTILIZATION TAB (Report 3: Vehicle Utilization Report) ── -->
+        <section id="tab-utilization" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Vehicle Utilization <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Days on rent vs. idle time, per unit, over
+                the selected period</p>
+            </div>
+            <div class="flex gap-3 items-center">
+              <select id="utilization-period" onchange="loadUtilization()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary chamfer-sm">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+              </select>
+              <button onclick="exportUtilization()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Fleet Avg. Utilization</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="util-avg-rate">0%</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Most Utilized</div>
+              <div class="font-display-lg text-base font-bold text-on-background truncate" id="util-top-vehicle">—</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Least Utilized</div>
+              <div class="font-display-lg text-base font-bold text-on-background truncate" id="util-bottom-vehicle">—
+              </div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Currently Deployed</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="util-out-now">0</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Class</th>
+                    <th class="px-5 py-4 text-right uppercase">Bookings</th>
+                    <th class="px-5 py-4 text-right uppercase">Days Rented</th>
+                    <th class="px-5 py-4 text-right uppercase">Idle Days</th>
+                    <th class="px-5 py-4 text-left uppercase">Utilization</th>
+                    <th class="px-5 py-4 text-right uppercase">Revenue</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="utilization-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-utilization" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">monitoring</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No fleet data for this period</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── MAINTENANCE TAB (Report 4: Maintenance Schedule Report) ── -->
+        <section id="tab-maintenance" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Maintenance Schedule <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Preventive maintenance due dates across
+                the fleet</p>
+            </div>
+            <div class="flex gap-3">
+              <input id="maintenance-search" type="text" placeholder="Search by vehicle or service…"
+                oninput="filterMaintenance()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-56" />
+              <button onclick="exportMaintenance()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-error/40 chamfer p-5">
+              <div class="font-label-mono text-[10px] text-error uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">warning</span> Overdue</div>
+              <div class="font-display-lg text-3xl font-bold text-error" id="maint-overdue-count">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">schedule</span> Due Soon (14d)</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="maint-due-soon-count">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">check_circle</span> On Schedule</div>
+              <div class="font-display-lg text-3xl font-bold text-secondary" id="maint-ok-count">0</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Service Type</th>
+                    <th class="px-5 py-4 text-left uppercase">Last Serviced</th>
+                    <th class="px-5 py-4 text-left uppercase">Next Due</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="maintenance-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-maintenance" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">build</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No maintenance records</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── REVENUE TAB (Report 5: Revenue and Profit Report) ── -->
+        <section id="tab-revenue" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Revenue &amp; Profit <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Gross revenue, estimated cost, and net
+                profit across the fleet</p>
+            </div>
+            <div class="flex gap-3 items-center">
+              <select id="revenue-period" onchange="loadRevenue()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary chamfer-sm">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last 12 Months</option>
+              </select>
+              <button onclick="exportRevenue()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Gross Revenue</div>
+              <div class="font-display-lg text-2xl font-bold text-primary" id="rev-gross">₱0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-error uppercase mb-2">Est. Operating Cost</div>
+              <div class="font-display-lg text-2xl font-bold text-error" id="rev-cost">₱0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Net Profit</div>
+              <div class="font-display-lg text-2xl font-bold text-secondary" id="rev-profit">₱0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Profit Margin</div>
+              <div class="font-display-lg text-2xl font-bold text-on-background" id="rev-margin">0%</div>
+            </div>
+          </div>
+          <p class="font-label-mono text-[9px] text-on-surface-variant/40 uppercase mb-6">Cost figure is an estimate
+            (35% of gross revenue) — no real expense ledger is tracked yet.</p>
+          <div class="bg-surface-container-low border border-outline-variant chamfer mb-6">
+            <div
+              class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">bar_chart</span> Revenue by Vehicle
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                    <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-3 text-left uppercase">Class</th>
+                    <th class="px-5 py-3 text-right uppercase">Bookings</th>
+                    <th class="px-5 py-3 text-right uppercase">Revenue</th>
+                    <th class="px-5 py-3 text-right uppercase">Est. Cost</th>
+                    <th class="px-5 py-3 text-right uppercase">Profit</th>
+                    <th class="px-5 py-3 text-right uppercase">Margin</th>
+                  </tr>
+                </thead>
+                <tbody id="revenue-vehicle-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div
+              class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">timeline</span> Daily Revenue Trend
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                    <th class="px-5 py-3 text-left uppercase">Date</th>
+                    <th class="px-5 py-3 text-right uppercase">Revenue</th>
+                    <th class="px-5 py-3 text-right uppercase">Est. Cost</th>
+                    <th class="px-5 py-3 text-right uppercase">Profit</th>
+                  </tr>
+                </thead>
+                <tbody id="revenue-trend-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-revenue" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">payments</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No revenue in this period</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CUSTOMERS TAB (Report 6: Customer Rental History Report) ── -->
+        <section id="tab-customers" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Customer Rental <span
+                  class="text-primary-container">History</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Lifetime rentals, spend, and verification
+                status per rider/driver</p>
+            </div>
+            <div class="flex gap-3">
+              <input id="customer-search" type="text" placeholder="Search by name or email…"
+                oninput="filterCustomerHistory()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-56" />
+              <button onclick="exportCustomerHistory()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Rider/Driver</th>
+                    <th class="px-5 py-4 text-left uppercase">Email</th>
+                    <th class="px-5 py-4 text-right uppercase">Total Rentals</th>
+                    <th class="px-5 py-4 text-right uppercase">Completed</th>
+                    <th class="px-5 py-4 text-right uppercase">Lifetime Spend</th>
+                    <th class="px-5 py-4 text-right uppercase">Avg / Rental</th>
+                    <th class="px-5 py-4 text-left uppercase">Verification</th>
+                    <th class="px-5 py-4 text-left uppercase">Last Rental</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-customers" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">badge</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No riders/drivers registered yet</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── RECOMMENDATIONS TAB (Report 7: Recommendation Effectiveness Report) ── -->
+        <section id="tab-recommendations" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Recommendation Effectiveness <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">How often the decision-tree engine's
+                suggested vehicle was accepted</p>
+            </div>
+            <button onclick="exportRecommendations()"
+              class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+              <span class="material-symbols-outlined text-sm">download</span> Export
+            </button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Total Recommendations</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="rec-total">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Accepted</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="rec-accepted">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Acceptance Rate</div>
+              <div class="font-display-lg text-3xl font-bold text-secondary" id="rec-rate">0%</div>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer">
+              <div
+                class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">directions_car</span> By Recommended Vehicle
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full font-label-mono text-xs">
+                  <thead>
+                    <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                      <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                      <th class="px-5 py-3 text-right uppercase">Recommended</th>
+                      <th class="px-5 py-3 text-right uppercase">Accepted</th>
+                      <th class="px-5 py-3 text-right uppercase">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rec-vehicle-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer">
+              <div
+                class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">tune</span> By Rider/Driver Priority
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full font-label-mono text-xs">
+                  <thead>
+                    <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                      <th class="px-5 py-3 text-left uppercase">Priority</th>
+                      <th class="px-5 py-3 text-right uppercase">Recommended</th>
+                      <th class="px-5 py-3 text-right uppercase">Accepted</th>
+                      <th class="px-5 py-3 text-right uppercase">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rec-priority-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div id="no-recommendations" class="hidden py-12 text-center mt-6">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">psychology</span>
+            <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No recommendation activity logged
+              yet</p>
+          </div>
+        </section>
+
+        <!-- ── OVERDUE TAB (Report 8: Overdue Return Report) ── -->
+        <section id="tab-overdue" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-error pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Overdue Return <span
+                  class="text-error">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Rentals past their expected return date —
+                still out or returned late</p>
+            </div>
+            <button onclick="exportOverdue()"
+              class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+              <span class="material-symbols-outlined text-sm">download</span> Export
+            </button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-error/40 chamfer p-5">
+              <div class="font-label-mono text-[10px] text-error uppercase mb-2 flex items-center gap-1"><span
+                  class="material-symbols-outlined text-sm">warning</span> Still Out (Overdue)</div>
+              <div class="font-display-lg text-3xl font-bold text-error" id="overdue-out-count">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Returned Late</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="overdue-late-count">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Avg. Days Overdue</div>
+              <div class="font-display-lg text-3xl font-bold text-secondary" id="overdue-avg-days">0</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Booking ID</th>
+                    <th class="px-5 py-4 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-4 text-left uppercase">Rider/Driver</th>
+                    <th class="px-5 py-4 text-left uppercase">Expected Return</th>
+                    <th class="px-5 py-4 text-left uppercase">Actual Return</th>
+                    <th class="px-5 py-4 text-right uppercase">Days Overdue</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="overdue-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-overdue" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">check_circle</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No overdue returns — fleet is on
+                schedule</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── FUEL & MILEAGE TAB (Report 9: Fuel and Mileage Report) ── -->
+        <section id="tab-fuelmileage" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Fuel &amp; Mileage <span
+                  class="text-primary-container">Report</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Odometer distance and fuel level readings
+                captured at vehicle return</p>
+            </div>
+            <button onclick="exportFuelMileage()"
+              class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+              <span class="material-symbols-outlined text-sm">download</span> Export
+            </button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Total Trips Logged</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="fm-total-trips">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Total Distance</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="fm-total-mileage">0 km</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Avg. Distance / Trip</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="fm-avg-mileage">0 km</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer mb-6">
+            <div
+              class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">directions_car</span> By Vehicle
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                    <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-3 text-right uppercase">Trips</th>
+                    <th class="px-5 py-3 text-right uppercase">Total Distance</th>
+                    <th class="px-5 py-3 text-right uppercase">Avg. / Trip</th>
+                    <th class="px-5 py-3 text-right uppercase">Avg. Fuel Used</th>
+                  </tr>
+                </thead>
+                <tbody id="fm-vehicle-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div
+              class="px-5 py-3 border-b border-outline-variant font-label-mono text-xs text-primary uppercase font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">receipt_long</span> Per-Trip Log
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant/30 text-on-surface-variant/60">
+                    <th class="px-5 py-3 text-left uppercase">Booking ID</th>
+                    <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-3 text-left uppercase">Rider/Driver</th>
+                    <th class="px-5 py-3 text-right uppercase">Odometer Start</th>
+                    <th class="px-5 py-3 text-right uppercase">Odometer End</th>
+                    <th class="px-5 py-3 text-right uppercase">Distance</th>
+                    <th class="px-5 py-3 text-right uppercase">Fuel Used</th>
+                    <th class="px-5 py-3 text-left uppercase">Returned</th>
+                  </tr>
+                </thead>
+                <tbody id="fm-trips-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-fuelmileage" class="hidden py-12 text-center">
+              <span
+                class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">local_gas_station</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No odometer/fuel readings logged
+                yet — captured when a rental is marked returned</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── NOTIFICATIONS TAB (Report 10: Email Notification Log Report) ── -->
+        <section id="tab-notifications" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Email Notification <span
+                  class="text-primary-container">Log</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Every rider/admin-facing email event
+                triggered by the system</p>
+            </div>
+            <div class="flex gap-3">
+              <select id="notification-type-filter" onchange="filterNotifications()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary chamfer-sm">
+                <option value="">All Types</option>
+                <option value="booking_submitted">Reservation Received</option>
+                <option value="booking_approved">Reservation Approved</option>
+                <option value="booking_rejected">Reservation Rejected</option>
+                <option value="booking_pickup">Vehicle Picked Up</option>
+                <option value="booking_returned">Vehicle Returned</option>
+                <option value="booking_overdue">Overdue Reminder</option>
+                <option value="verification_submitted">Verification Received</option>
+                <option value="verification_approved">Verification Approved</option>
+                <option value="verification_rejected">Verification Rejected</option>
+              </select>
+              <input id="notification-search" type="text" placeholder="Search by name or email…"
+                oninput="filterNotifications()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-52" />
+              <button onclick="exportNotifications()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Total Sent</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="ntf-total">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Last 24 Hours</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="ntf-last24">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Most Common Type</div>
+              <div class="font-display-lg text-base font-bold text-on-background truncate" id="ntf-top-type">—</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Sent At</th>
+                    <th class="px-5 py-4 text-left uppercase">Type</th>
+                    <th class="px-5 py-4 text-left uppercase">Subject</th>
+                    <th class="px-5 py-4 text-left uppercase">Recipient</th>
+                    <th class="px-5 py-4 text-left uppercase">Related ID</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="notifications-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-notifications" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">mail</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No notifications logged yet</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── SUPPORT TICKETS TAB ─────────────────────────────── -->
+        <section id="tab-support" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Support <span
+                  class="text-primary-container">Tickets</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Messages submitted through the Contact
+                Protocol form on support.html</p>
+            </div>
+            <div class="flex gap-3">
+              <select id="ticket-status-filter" onchange="filterSupportTickets()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary chamfer-sm">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+              <input id="ticket-search" type="text" placeholder="Search by name or email…"
+                oninput="filterSupportTickets()"
+                class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary placeholder-white/20 chamfer-sm w-52" />
+              <button onclick="exportSupportTickets()"
+                class="flex items-center gap-2 border border-secondary/30 text-secondary px-4 py-2 chamfer-sm font-label-mono text-xs uppercase hover:bg-secondary/10 transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Total Tickets</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="tck-total">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Open</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="tck-open">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Resolved</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="tck-resolved">0</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-low border border-outline-variant chamfer">
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-4 text-left uppercase">Received</th>
+                    <th class="px-5 py-4 text-left uppercase">Name</th>
+                    <th class="px-5 py-4 text-left uppercase">Email</th>
+                    <th class="px-5 py-4 text-left uppercase">Category</th>
+                    <th class="px-5 py-4 text-left uppercase">Message</th>
+                    <th class="px-5 py-4 text-left uppercase">Status</th>
+                    <th class="px-5 py-4 text-left uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="support-tickets-tbody"></tbody>
+              </table>
+            </div>
+            <div id="no-support-tickets" class="hidden py-12 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">support_agent</span>
+              <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No support tickets yet</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── REVIEWS TAB ──────────────────────────────────── -->
+        <section id="tab-reviews" class="hidden">
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div class="border-l-4 border-primary pl-4">
+              <h2 class="font-display-lg text-2xl uppercase italic font-bold">Rider/Driver <span
+                  class="text-primary-container">Reviews</span></h2>
+              <p class="font-label-mono text-xs text-on-surface-variant mt-1">Testimonials left by riders/drivers after completed
+                bookings — reply as WheelRentraGo</p>
+            </div>
+            <select id="review-filter" onchange="filterReviews()"
+              class="bg-surface-container-high border border-outline-variant px-4 py-2 font-label-mono text-xs text-secondary chamfer-sm">
+              <option value="">All Reviews</option>
+              <option value="unreplied">Awaiting Reply</option>
+              <option value="replied">Replied</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-cyan">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-2">Total Reviews</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="rev-total">0</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-on-surface-variant uppercase mb-2">Average Rating</div>
+              <div class="font-display-lg text-3xl font-bold text-on-background" id="rev-avg">—</div>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5 stat-glow-red">
+              <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Awaiting Reply</div>
+              <div class="font-display-lg text-3xl font-bold text-primary" id="rev-pending">0</div>
+            </div>
+          </div>
+          <div id="reviews-list" class="space-y-4"></div>
+          <div id="no-reviews" class="hidden py-12 text-center bg-surface-container-low border border-outline-variant chamfer">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant/20 block mb-3">rate_review</span>
+            <p class="font-label-mono text-xs text-on-surface-variant/40 uppercase">No reviews yet</p>
+          </div>
+
+          <!-- ── Feedback Analytics (studies feedback → service quality / decisions) ── -->
+          <div class="mt-12 mb-6 border-l-4 border-secondary pl-4">
+            <h2 class="font-display-lg text-xl uppercase italic font-bold">Feedback <span class="text-secondary">Analytics</span></h2>
+            <p class="font-label-mono text-xs text-on-surface-variant mt-1">Aggregated insights from rider/driver feedback — spot underperforming units and rating trends</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Rating distribution -->
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="font-label-mono text-[10px] text-secondary uppercase mb-4">Rating Distribution</div>
+              <div id="rating-distribution" class="space-y-2"></div>
+            </div>
+            <!-- Monthly trend -->
+            <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+              <div class="flex items-center justify-between mb-4">
+                <div class="font-label-mono text-[10px] text-secondary uppercase">6-Month Rating Trend</div>
+                <div class="font-label-mono text-[10px] text-primary uppercase" id="rev-low-flag"></div>
+              </div>
+              <div id="rating-trend" class="flex items-end gap-2 h-32"></div>
+            </div>
+          </div>
+
+          <div class="bg-surface-container-low border border-outline-variant chamfer mb-6">
+            <div class="px-5 py-4 border-b border-outline-variant/30 font-label-mono text-[10px] text-secondary uppercase">Vehicle Performance — Worst Rated First</div>
+            <div class="overflow-x-auto">
+              <table class="w-full font-label-mono text-xs">
+                <thead>
+                  <tr class="border-b border-outline-variant bg-black/30 text-secondary">
+                    <th class="px-5 py-3 text-left uppercase">Vehicle</th>
+                    <th class="px-5 py-3 text-left uppercase">Avg Rating</th>
+                    <th class="px-5 py-3 text-left uppercase">Reviews</th>
+                    <th class="px-5 py-3 text-left uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="vehicle-perf-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Support Ticket Detail Modal -->
+  <div id="ticket-modal" class="hidden fixed inset-0 z-[999] bg-black/85 flex items-center justify-center px-4">
+    <div class="bg-surface-container-low border border-outline-variant chamfer max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="font-label-mono text-[10px] text-on-surface-variant uppercase">Ticket</div>
+          <div id="ticket-modal-id" class="font-display-lg text-lg text-primary">—</div>
+        </div>
+        <button onclick="closeTicketModal()" class="text-on-surface-variant hover:text-error">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="font-label-mono text-xs text-on-surface-variant space-y-1">
+        <div><span class="text-on-surface-variant/50 uppercase">From:</span> <span id="ticket-modal-from">—</span></div>
+        <div><span class="text-on-surface-variant/50 uppercase">Category:</span> <span id="ticket-modal-category">—</span></div>
+        <div><span class="text-on-surface-variant/50 uppercase">Received:</span> <span id="ticket-modal-date">—</span></div>
+      </div>
+      <div id="ticket-modal-message" class="font-body-md text-sm text-on-background bg-black/30 border border-outline-variant/30 p-4 whitespace-pre-wrap"></div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="markTicketStatus('in_progress')"
+          class="flex-1 py-2.5 border border-secondary text-secondary font-label-mono text-[10px] uppercase chamfer-sm hover:bg-secondary/10 transition-colors">Mark In Progress</button>
+        <button onclick="markTicketStatus('resolved')"
+          class="flex-1 py-2.5 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-sm hover:brightness-110 transition-all">Mark Resolved</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification Review Modal -->
+  <div id="verif-modal"
+    class="hidden fixed inset-0 z-[999] bg-black/85 flex items-start justify-center px-4 overflow-y-auto py-8">
+    <div class="bg-surface-container-low border border-outline-variant chamfer p-8 max-w-2xl w-full my-auto">
+      <h3 class="font-display-lg text-xl uppercase text-primary mb-1" id="verif-modal-name">—</h3>
+      <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mb-5" id="verif-modal-email">—</p>
+      <div class="grid grid-cols-2 gap-4 mb-6 overflow-y-auto pr-1" id="verif-modal-docs" style="max-height: 340px;"></div>
+      <div class="mb-6">
+        <div class="font-label-mono text-[10px] text-secondary uppercase tracking-widest mb-2">Gate Evaluation</div>
+        <div id="verif-modal-gate" class="space-y-2 font-label-mono text-[10px]"></div>
+      </div>
+      <div class="space-y-2 mb-6">
+        <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block">Review Note
+          (optional)</label>
+        <textarea id="verif-note" rows="2"
+          class="w-full bg-black/60 border border-outline-variant py-2 px-3 font-label-mono text-xs text-secondary"></textarea>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="reviewCurrent('approve')"
+          class="flex-1 py-3 bg-secondary text-on-secondary-container font-label-mono text-xs uppercase font-bold chamfer-sm hover:brightness-110 transition-all">Approve</button>
+        <button onclick="reviewCurrent('reject')"
+          class="flex-1 py-3 bg-error-container text-error font-label-mono text-xs uppercase font-bold chamfer-sm hover:brightness-125 transition-all">Reject</button>
+        <button onclick="closeVerifModal()"
+          class="px-6 py-3 border border-outline-variant text-on-surface-variant font-label-mono text-xs uppercase chamfer-sm hover:border-primary transition-colors">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Booking Modal -->
+  <div id="delete-modal" class="hidden fixed inset-0 z-[999] bg-black/80 flex items-center justify-center px-4">
+    <div class="bg-surface-container-low border border-error chamfer p-8 max-w-sm w-full">
+      <h3 class="font-display-lg text-xl uppercase text-error mb-3">Confirm Delete</h3>
+      <p class="font-label-mono text-xs text-on-surface-variant mb-6">Remove booking <span class="text-primary"
+          id="delete-booking-id"></span> from records?</p>
+      <div class="flex gap-3">
+        <button onclick="confirmDelete()"
+          class="flex-1 py-3 bg-error-container text-error font-label-mono text-xs uppercase chamfer-sm hover:brightness-125 transition-all">Delete</button>
+        <button onclick="closeDeleteModal()"
+          class="flex-1 py-3 border border-outline-variant text-on-surface-variant font-label-mono text-xs uppercase chamfer-sm hover:border-primary transition-colors">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MARK AS RETURNED MODAL — odometer + fuel% capture ──
+       Replaces the old sequential prompt()/prompt()/prompt()/prompt()
+       browser-dialog flow with a proper form. -->
+  <div id="return-modal" class="hidden fixed inset-0 z-[999] bg-black/85 flex items-start justify-center px-4 overflow-y-auto py-8">
+    <div class="bg-surface-container-low border border-outline-variant chamfer p-8 max-w-md w-full space-y-6">
+      <div>
+        <h3 class="font-display-lg text-xl uppercase text-primary mb-1">Mark as Returned</h3>
+        <p class="font-label-mono text-[10px] text-on-surface-variant uppercase">Booking <span id="return-booking-id" class="text-secondary"></span></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block mb-2">Odometer — Pickup (km)</label>
+          <input id="return-odo-start" type="number" min="0" step="1" placeholder="0" class="w-full bg-black/60 border border-outline-variant py-2.5 px-3 font-label-mono text-sm chamfer-sm"/>
+        </div>
+        <div>
+          <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest block mb-2">Odometer — Return (km)</label>
+          <input id="return-odo-end" type="number" min="0" step="1" placeholder="0" class="w-full bg-black/60 border border-outline-variant py-2.5 px-3 font-label-mono text-sm chamfer-sm"/>
+        </div>
+      </div>
+      <p id="return-odo-err" class="hidden font-label-mono text-[10px] text-error uppercase -mt-3">Return reading must be greater than or equal to pickup reading.</p>
+
+      <div class="space-y-5">
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest">Fuel Level — Pickup</label>
+            <span id="return-fuel-start-val" class="font-label-mono text-xs text-secondary">100%</span>
+          </div>
+          <input id="return-fuel-start" type="range" min="0" max="100" step="5" value="100" class="w-full accent-primary-container"/>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="font-label-mono text-[10px] text-primary uppercase tracking-widest">Fuel Level — Return</label>
+            <span id="return-fuel-end-val" class="font-label-mono text-xs text-secondary">100%</span>
+          </div>
+          <input id="return-fuel-end" type="range" min="0" max="100" step="5" value="100" class="w-full accent-primary-container"/>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="confirmMarkReturned()"
+          class="flex-1 py-3 bg-primary-container text-on-primary-container font-label-mono text-xs uppercase font-bold chamfer-sm hover:brightness-110 transition-all">Confirm Return</button>
+        <button onclick="closeReturnModal()"
+          class="flex-1 py-3 border border-outline-variant text-on-surface-variant font-label-mono text-xs uppercase chamfer-sm hover:border-primary transition-colors">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+  <script>
+    let allBookings = [], allTransactions = [], allUsers = [], allVerifications = [], allFleet = [], pendingDeleteId = null, currentVerifId = null;
+
+    // ── Alpine store: reservations table state (replaces manual
+    // renderReservations() / filterReservations() innerHTML rebuilding) ─────
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('reservations', {
+        list: [],
+        search: '',
+        filtered() {
+          const q = this.search.toLowerCase();
+          return this.list.filter(b =>
+            String(b.id ?? '').toLowerCase().includes(q) ||
+            String(b.vehicleId ?? '').toLowerCase().includes(q) ||
+            String(b.vehicleName ?? '').toLowerCase().includes(q) ||
+            String(b.rider?.name || b.riderName || '').toLowerCase().includes(q));
+        }
+      });
+    });
+
+    // ── Admin Login ────────────────────────────────────────────────────────
+    WRG.api.getAdminSession().then(s => {
+      if (s) showDashboard(s);
+    });
+
+    function togglePass() {
+      const i = document.getElementById('admin-pass');
+      i.type = i.type === 'password' ? 'text' : 'password';
+    }
+
+    function doAdminLogin() {
+      const email = document.getElementById('admin-email').value.trim();
+      const pw = document.getElementById('admin-pass').value;
+      const btn = document.getElementById('admin-login-btn');
+      btn.disabled = true;
+      WRG.api.adminLogin({ email, password: pw }).then(s => showDashboard(s)).catch(e => {
+        const el = document.getElementById('login-err');
+        el.textContent = e.message; el.classList.remove('hidden');
+      }).finally(() => { btn.disabled = false; });
+    }
+    document.getElementById('admin-email').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+    document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+
+    function doAdminLogout() {
+      WRG.api.adminLogout().then(() => { document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden'); });
+    }
+
+    function showDashboard(session) {
+      document.getElementById('admin-login-screen').classList.add('hidden');
+      document.getElementById('admin-dashboard').classList.remove('hidden');
+      document.getElementById('admin-name-sidebar').textContent = session.name;
+      refreshDashboard();
+    }
+
+    // ── Tab switching ──────────────────────────────────────────────────────
+    function showTab(name) {
+      ['overview', 'reservations', 'transactions', 'users', 'fleet', 'verification', 'utilization', 'maintenance', 'revenue', 'customers', 'recommendations', 'overdue', 'fuelmileage', 'notifications', 'support', 'reviews'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== name);
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.tab === name;
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('bg-primary-container', isActive);
+        btn.classList.toggle('text-on-primary-container', isActive);
+        btn.classList.toggle('text-on-surface-variant', !isActive);
+      });
+    }
+
+    // ── Refresh / load data ────────────────────────────────────────────────
+    function refreshDashboard() {
+      Promise.all([WRG.api.getReservations(), WRG.api.getTransactions(), WRG.api.getAllUsers(), WRG.api.getFleet(), WRG.api.getAllVerifications(), WRG.api.getVehicleAvailability()]).then(([reservations, transactions, users, fleet, verifications, availabilityMap]) => {
+        allBookings = reservations;
+        allTransactions = transactions;
+        allUsers = users;
+        allVerifications = verifications;
+        allFleet = fleet;
+        renderOverview(reservations, transactions, users, fleet);
+        if (window.Alpine && Alpine.store('reservations')) Alpine.store('reservations').list = reservations;
+        else document.addEventListener('alpine:init', () => { Alpine.store('reservations').list = reservations; }, { once: true });
+        renderTransactions(transactions);
+        renderUsers(users);
+        renderAdminFleet(fleet, transactions, availabilityMap);
+        renderVerifications(verifications);
+
+        const pendingRes = reservations.filter(b => b.status === 'pending').length;
+        const resBadge = document.getElementById('reservation-badge');
+        resBadge.classList.toggle('hidden', pendingRes === 0);
+        resBadge.textContent = pendingRes;
+      });
+      loadUtilization();
+      loadMaintenance();
+      loadRevenue();
+      loadCustomerHistory();
+      loadRecommendations();
+      loadOverdue();
+      loadFuelMileage();
+      loadNotifications();
+      loadSupportTickets();
+      loadReviews();
+    }
+
+    // ── OVERVIEW ──────────────────────────────────────────────────────────
+    function renderOverview(reservations, transactions, users, fleet) {
+      document.getElementById('stat-total-bookings').textContent = reservations.length;
+      document.getElementById('stat-total-users').textContent = users.length;
+      document.getElementById('stat-fleet-units').textContent = (fleet || []).length;
+      const revenue = transactions.reduce((s, b) => s + (b.total || 0), 0);
+      document.getElementById('stat-revenue').textContent = WRG.peso(revenue);
+
+      const recent = reservations.slice(0, 5);
+      const tbody = document.getElementById('overview-recent-tbody');
+      tbody.innerHTML = recent.length ? recent.map(b => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-primary">${b.id}</td>
+        <td class="px-5 py-3 text-on-background">${(b.vehicleId || '—').replace(/-/g, ' ').toUpperCase()}</td>
+        <td class="px-5 py-3">${b.days || '—'}</td>
+        <td class="px-5 py-3 text-primary">${b.total ? WRG.peso(b.total) : '—'}</td>
+        <td class="px-5 py-3">${statusBadge(b.status)}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${b.reservationDate ? new Date(b.reservationDate).toLocaleDateString('en-PH') : '—'}</td>
+      </tr>`).join('') : '<tr><td colspan="6" class="px-5 py-6 text-center text-on-surface-variant/40">No reservations yet</td></tr>';
+
+      document.getElementById('overview-fleet-grid').innerHTML = fleet.map(v => {
+        const booked = transactions.filter(b => b.vehicleId === v.id).length;
+        return `<div class="p-4 flex flex-col gap-2">
+        <div class="font-label-mono text-[10px] text-primary uppercase">${v.name}</div>
+        <div class="font-display-lg text-lg text-on-background">${v.cls}</div>
+        <div class="font-label-mono text-[9px] text-on-surface-variant">${booked} deployment${booked !== 1 ? 's' : ''}</div>
+        <div class="h-1 bg-surface-container-high mt-1"><div class="h-full bg-primary-container" style="width:${Math.min(100, booked * 25)}%"></div></div>
+      </div>`;
+      }).join('');
+    }
+
+    // ── XSS guard: escape any user-controlled string before it goes into
+    // innerHTML template literals (rider names, emails, notes, etc.) ────────
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // ── Status badge helper ─────────────────────────────────────────────────
+    function statusBadge(status) {
+      const map = {
+        pending: ['badge-pending', 'PENDING'],
+        approved: ['badge-confirmed', 'APPROVED'],
+        rejected: ['', 'REJECTED'],
+        cancelled: ['', 'CANCELLED'],
+        ongoing: ['badge-confirmed', 'ONGOING'],
+        completed: ['badge-confirmed', 'COMPLETED'],
+        open: ['badge-pending', 'OPEN'],
+        in_progress: ['badge-confirmed', 'IN PROGRESS'],
+        resolved: ['badge-confirmed', 'RESOLVED']
+      };
+      const [cls, label] = map[status] || ['', (status || '—').toUpperCase()];
+      const style = (status === 'rejected' || status === 'cancelled') ? 'background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)' : '';
+      return `<span class="px-2 py-0.5 text-[9px] uppercase ${cls}" style="${style}">${label}</span>`;
+    }
+
+    // ── RESERVATIONS (Report 1) — table itself now lives in the Alpine
+    // store above; this file only keeps the actions that mutate data. ───────
+    function exportReservations() {
+      const rows = [['Reservation ID', 'Vehicle', 'Customer', 'Days', 'Est. Total', 'Reservation Date', 'Status']];
+      allBookings.forEach(b => rows.push([b.id, b.vehicleId, b.rider?.name || b.riderName || '', b.days || '', b.total || '', b.reservationDate || '', b.status || '']));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-reservations-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Reservations exported as CSV');
+    }
+
+    function approveReservation(id) {
+      WRG.api.approveReservation(id)
+        .then((b) => { WRG.toast(b ? 'Reservation approved' : 'Approve did not save — check console/RLS'); refreshDashboard(); })
+        .catch(err => WRG.toast('Approve failed: ' + (err.message || err)));
+    }
+    function rejectReservationRow(id) {
+      const reason = prompt('Reason for rejection (optional):') || '';
+      WRG.api.rejectReservation(id, reason)
+        .then((b) => { WRG.toast(b ? 'Reservation rejected' : 'Reject did not save — check console/RLS'); refreshDashboard(); })
+        .catch(err => WRG.toast('Reject failed: ' + (err.message || err)));
+    }
+    function markPickedUpRow(id) {
+      WRG.api.markPickedUp(id)
+        .then((b) => { WRG.toast(b ? 'Marked as picked up' : 'Update did not save — check console/RLS'); refreshDashboard(); })
+        .catch(err => WRG.toast('Failed: ' + (err.message || err)));
+    }
+
+    // ── TRANSACTIONS (Report 2) ─────────────────────────────────────────────
+    let currentTransactions = [];
+    function renderTransactions(list) {
+      currentTransactions = list;
+      const tbody = document.getElementById('transactions-tbody');
+      document.getElementById('no-transactions').classList.toggle('hidden', list.length > 0);
+      tbody.innerHTML = list.map(b => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-primary font-bold">${b.id}</td>
+        <td class="px-5 py-3">${(b.vehicleId || '—').replace(/-/g, ' ').toUpperCase()}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(b.rider?.name || b.riderName || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${b.pickupAt ? new Date(b.pickupAt).toLocaleDateString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${b.returnAt ? new Date(b.returnAt).toLocaleDateString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-right text-primary">${b.total ? WRG.peso(b.total) : '—'}</td>
+        <td class="px-5 py-3">${statusBadge(b.status)}</td>
+        <td class="px-5 py-3">${b.status === 'ongoing' ? `<button onclick="markReturnedRow('${b.id}')" class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 transition-colors">Mark Returned</button>` : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No transactions</td></tr>';
+    }
+
+    function filterTransactions() {
+      const q = document.getElementById('transaction-search').value.toLowerCase();
+      renderTransactions(allTransactions.filter(b => b.id?.toLowerCase().includes(q) || b.vehicleId?.toLowerCase().includes(q)));
+    }
+
+    function exportTransactions() {
+      const rows = [['Transaction ID', 'Vehicle', 'Renter', 'Pickup Date', 'Return Date', 'Total', 'Status']];
+      allTransactions.forEach(b => rows.push([b.id, b.vehicleId, b.rider?.name || b.riderName || '', b.pickupAt || '', b.returnAt || '', b.total || '', b.status || '']));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-transactions-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Transactions exported as CSV');
+    }
+
+    let pendingReturnId = null;
+
+    function markReturnedRow(id) {
+      pendingReturnId = id;
+      document.getElementById('return-booking-id').textContent = id;
+      document.getElementById('return-odo-start').value = '';
+      document.getElementById('return-odo-end').value = '';
+      document.getElementById('return-odo-err').classList.add('hidden');
+      ['start', 'end'].forEach(k => {
+        document.getElementById('return-fuel-' + k).value = 100;
+        document.getElementById('return-fuel-' + k + '-val').textContent = '100%';
+      });
+      document.getElementById('return-modal').classList.remove('hidden');
+    }
+
+    function closeReturnModal() {
+      document.getElementById('return-modal').classList.add('hidden');
+      pendingReturnId = null;
+    }
+
+    ['start', 'end'].forEach(k => {
+      document.getElementById('return-fuel-' + k).addEventListener('input', (e) => {
+        document.getElementById('return-fuel-' + k + '-val').textContent = e.target.value + '%';
+      });
+    });
+
+    function confirmMarkReturned() {
+      if (!pendingReturnId) return;
+      const odometerStart = parseFloat(document.getElementById('return-odo-start').value);
+      const odometerEnd = parseFloat(document.getElementById('return-odo-end').value);
+      const fuelStart = parseFloat(document.getElementById('return-fuel-start').value);
+      const fuelEnd = parseFloat(document.getElementById('return-fuel-end').value);
+
+      if (!isNaN(odometerStart) && !isNaN(odometerEnd) && odometerEnd < odometerStart) {
+        document.getElementById('return-odo-err').classList.remove('hidden');
+        return;
+      }
+
+      const id = pendingReturnId;
+      closeReturnModal();
+
+      WRG.api.markReturned(id, {
+        odometerStart: isNaN(odometerStart) ? null : odometerStart,
+        odometerEnd: isNaN(odometerEnd) ? null : odometerEnd,
+        fuelStart: isNaN(fuelStart) ? null : fuelStart,
+        fuelEnd: isNaN(fuelEnd) ? null : fuelEnd
+      })
+        .then((b) => { WRG.toast(b ? 'Marked as returned' : 'Update did not save — check console/RLS'); refreshDashboard(); })
+        .catch(err => WRG.toast('Failed: ' + (err.message || err)));
+    }
+
+    // ── UTILIZATION (Report 3) ──────────────────────────────────────────────
+    let currentUtilization = [];
+    function loadUtilization() {
+      const period = parseInt(document.getElementById('utilization-period').value, 10) || 30;
+      WRG.api.getVehicleUtilization(period).then(list => renderUtilization(list));
+    }
+    function renderUtilization(list) {
+      currentUtilization = list;
+      const tbody = document.getElementById('utilization-tbody');
+      document.getElementById('no-utilization').classList.toggle('hidden', list.length > 0);
+      const avg = list.length ? Math.round((list.reduce((s, v) => s + v.utilizationRate, 0) / list.length) * 10) / 10 : 0;
+      document.getElementById('util-avg-rate').textContent = avg + '%';
+      document.getElementById('util-top-vehicle').textContent = list[0] ? list[0].vehicleName : '—';
+      document.getElementById('util-bottom-vehicle').textContent = list.length ? list[list.length - 1].vehicleName : '—';
+      document.getElementById('util-out-now').textContent = list.filter(v => v.currentlyOut).length;
+      tbody.innerHTML = list.map(v => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${v.vehicleName}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${v.vehicleClass}</td>
+        <td class="px-5 py-3 text-right">${v.bookingsCount}</td>
+        <td class="px-5 py-3 text-right">${v.daysRented}</td>
+        <td class="px-5 py-3 text-right text-on-surface-variant/60">${v.idleDays}</td>
+        <td class="px-5 py-3"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-surface-container-high"><div class="h-full bg-primary-container" style="width:${Math.min(100, v.utilizationRate)}%"></div></div><span>${v.utilizationRate}%</span></div></td>
+        <td class="px-5 py-3 text-right text-primary">${WRG.peso(v.revenue)}</td>
+        <td class="px-5 py-3">${v.currentlyOut ? '<span class="px-2 py-0.5 text-[9px] uppercase badge-confirmed">Deployed</span>' : '<span class="px-2 py-0.5 text-[9px] uppercase border border-outline-variant/40 text-on-surface-variant">Idle</span>'}</td>
+      </tr>`).join('');
+    }
+    function exportUtilization() {
+      const rows = [['Vehicle', 'Class', 'Bookings', 'Days Rented', 'Idle Days', 'Utilization %', 'Revenue', 'Currently Out']];
+      currentUtilization.forEach(v => rows.push([v.vehicleName, v.vehicleClass, v.bookingsCount, v.daysRented, v.idleDays, v.utilizationRate, v.revenue, v.currentlyOut]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-utilization-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Utilization report exported as CSV');
+    }
+
+    // ── MAINTENANCE (Report 4) ──────────────────────────────────────────────
+    let allMaintenance = [];
+    function loadMaintenance() {
+      WRG.api.getMaintenanceSchedule().then(list => { allMaintenance = list; renderMaintenance(list); });
+    }
+    function renderMaintenance(list) {
+      const tbody = document.getElementById('maintenance-tbody');
+      document.getElementById('no-maintenance').classList.toggle('hidden', list.length > 0);
+      document.getElementById('maint-overdue-count').textContent = list.filter(r => r.status === 'overdue').length;
+      document.getElementById('maint-due-soon-count').textContent = list.filter(r => r.status === 'due_soon').length;
+      document.getElementById('maint-ok-count').textContent = list.filter(r => r.status === 'ok').length;
+      const overdue = list.filter(r => r.status === 'overdue').length;
+      const badge = document.getElementById('maint-badge');
+      badge.classList.toggle('hidden', overdue === 0);
+      badge.textContent = overdue;
+      const statusStyle = { overdue: 'background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)', due_soon: 'background:rgba(255,180,168,.1);color:#ffb4a8;border:1px solid rgba(255,180,168,.3)', ok: 'background:rgba(61,220,132,.12);color:#3ddc84;border:1px solid rgba(61,220,132,.3)' };
+      const statusLabel = { overdue: 'Overdue', due_soon: 'Due Soon', ok: 'On Schedule' };
+      tbody.innerHTML = list.map(r => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${r.vehicleName}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${r.label}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${new Date(r.lastServiceDate).toLocaleDateString('en-PH')}</td>
+        <td class="px-5 py-3">${new Date(r.nextDueDate).toLocaleDateString('en-PH')}</td>
+        <td class="px-5 py-3"><span class="px-2 py-0.5 text-[9px] uppercase" style="${statusStyle[r.status]}">${statusLabel[r.status]}</span></td>
+        <td class="px-5 py-3"><button onclick="logService('${r.id}')" class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 transition-colors">Log Service</button></td>
+      </tr>`).join('') || '<tr><td colspan="6" class="px-5 py-6 text-center text-on-surface-variant/40">No maintenance records</td></tr>';
+    }
+    function filterMaintenance() {
+      const q = document.getElementById('maintenance-search').value.toLowerCase();
+      renderMaintenance(allMaintenance.filter(r => r.vehicleName?.toLowerCase().includes(q) || r.label?.toLowerCase().includes(q)));
+    }
+    function exportMaintenance() {
+      const rows = [['Vehicle', 'Service Type', 'Last Serviced', 'Next Due', 'Status']];
+      allMaintenance.forEach(r => rows.push([r.vehicleName, r.label, r.lastServiceDate, r.nextDueDate, r.status]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-maintenance-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Maintenance report exported as CSV');
+    }
+    function logService(id) {
+      const note = prompt('Service note (optional):') || '';
+      WRG.api.logMaintenanceService(id, note).then(() => { WRG.toast('Service logged'); loadMaintenance(); });
+    }
+
+    // ── REVENUE & PROFIT (Report 5) ─────────────────────────────────────────
+    let currentRevenueData = null;
+    function loadRevenue() {
+      const period = parseInt(document.getElementById('revenue-period').value, 10) || 30;
+      WRG.api.getRevenueReport(period).then(data => renderRevenue(data));
+    }
+    function renderRevenue(data) {
+      currentRevenueData = data;
+      document.getElementById('rev-gross').textContent = WRG.peso(data.grossRevenue);
+      document.getElementById('rev-cost').textContent = WRG.peso(data.estimatedCost);
+      document.getElementById('rev-profit').textContent = WRG.peso(data.netProfit);
+      document.getElementById('rev-margin').textContent = data.profitMargin + '%';
+
+      document.getElementById('revenue-vehicle-tbody').innerHTML = data.byVehicle.map(v => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${v.vehicleName}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${v.vehicleClass}</td>
+        <td class="px-5 py-3 text-right">${v.bookingsCount}</td>
+        <td class="px-5 py-3 text-right text-primary">${WRG.peso(v.revenue)}</td>
+        <td class="px-5 py-3 text-right text-error">${WRG.peso(v.cost)}</td>
+        <td class="px-5 py-3 text-right text-secondary">${WRG.peso(v.profit)}</td>
+        <td class="px-5 py-3 text-right">${v.margin}%</td>
+      </tr>`).join('') || '<tr><td colspan="7" class="px-5 py-6 text-center text-on-surface-variant/40">No vehicle revenue yet</td></tr>';
+
+      const trendBody = document.getElementById('revenue-trend-tbody');
+      document.getElementById('no-revenue').classList.toggle('hidden', data.trend.length > 0);
+      trendBody.innerHTML = data.trend.slice().reverse().map(t => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-surface-variant/60">${new Date(t.date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+        <td class="px-5 py-3 text-right text-primary">${WRG.peso(t.revenue)}</td>
+        <td class="px-5 py-3 text-right text-error">${WRG.peso(t.cost)}</td>
+        <td class="px-5 py-3 text-right text-secondary">${WRG.peso(t.profit)}</td>
+      </tr>`).join('');
+    }
+    function exportRevenue() {
+      if (!currentRevenueData) return;
+      const rows = [['Vehicle', 'Class', 'Bookings', 'Revenue', 'Est. Cost', 'Profit', 'Margin %']];
+      currentRevenueData.byVehicle.forEach(v => rows.push([v.vehicleName, v.vehicleClass, v.bookingsCount, v.revenue, v.cost, v.profit, v.margin]));
+      rows.push([]); rows.push(['Date', 'Revenue', 'Est. Cost', 'Profit']);
+      currentRevenueData.trend.forEach(t => rows.push([t.date, t.revenue, t.cost, t.profit]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-revenue-profit-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Revenue & Profit report exported as CSV');
+    }
+
+    // ── CUSTOMER RENTAL HISTORY (Report 6) ──────────────────────────────────
+    let allCustomerHistory = [];
+    function loadCustomerHistory() {
+      WRG.api.getCustomerRentalHistory().then(list => { allCustomerHistory = list; renderCustomerHistory(list); });
+    }
+    function renderCustomerHistory(list) {
+      const tbody = document.getElementById('customers-tbody');
+      document.getElementById('no-customers').classList.toggle('hidden', list.length > 0);
+      const verifStyle = { approved: 'badge-confirmed', pending: 'badge-pending', rejected: '', unverified: '' };
+      tbody.innerHTML = list.map(c => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${escapeHtml(c.name || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(c.email || '—')}</td>
+        <td class="px-5 py-3 text-right">${c.totalRentals}</td>
+        <td class="px-5 py-3 text-right">${c.completedRentals}</td>
+        <td class="px-5 py-3 text-right text-primary">${WRG.peso(c.totalSpent)}</td>
+        <td class="px-5 py-3 text-right text-on-surface-variant/60">${WRG.peso(c.avgSpend)}</td>
+        <td class="px-5 py-3"><span class="px-2 py-0.5 text-[9px] uppercase ${verifStyle[c.verificationStatus] || ''}" style="${c.verificationStatus === 'rejected' ? 'background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)' : (c.verificationStatus === 'unverified' ? 'border:1px solid rgba(229,226,225,.2);color:#e5e2e1a0' : '')}">${c.verificationStatus}</span></td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${c.lastRentalDate ? new Date(c.lastRentalDate).toLocaleDateString('en-PH') : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No riders/drivers registered yet</td></tr>';
+    }
+    function filterCustomerHistory() {
+      const q = document.getElementById('customer-search').value.toLowerCase();
+      renderCustomerHistory(allCustomerHistory.filter(c => c.name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q)));
+    }
+    function exportCustomerHistory() {
+      const rows = [['Rider/Driver', 'Email', 'Total Rentals', 'Completed', 'Lifetime Spend', 'Avg / Rental', 'Verification', 'Last Rental']];
+      allCustomerHistory.forEach(c => rows.push([c.name, c.email, c.totalRentals, c.completedRentals, c.totalSpent, c.avgSpend, c.verificationStatus, c.lastRentalDate || '']));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-customer-rental-history-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Customer rental history exported as CSV');
+    }
+
+    // ── RECOMMENDATION EFFECTIVENESS (Report 7) ─────────────────────────────
+    let currentRecData = null;
+    function loadRecommendations() {
+      WRG.api.getRecommendationEffectiveness().then(data => renderRecommendations(data));
+    }
+    function renderRecommendations(data) {
+      currentRecData = data;
+      document.getElementById('rec-total').textContent = data.total;
+      document.getElementById('rec-accepted').textContent = data.accepted;
+      document.getElementById('rec-rate').textContent = data.acceptanceRate + '%';
+      document.getElementById('no-recommendations').classList.toggle('hidden', data.total > 0);
+
+      document.getElementById('rec-vehicle-tbody').innerHTML = data.byVehicle.map(v => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${v.vehicleName}</td>
+        <td class="px-5 py-3 text-right">${v.recommended}</td>
+        <td class="px-5 py-3 text-right text-secondary">${v.accepted}</td>
+        <td class="px-5 py-3 text-right text-primary">${v.acceptanceRate}%</td>
+      </tr>`).join('') || '<tr><td colspan="4" class="px-5 py-6 text-center text-on-surface-variant/40">No data</td></tr>';
+
+      document.getElementById('rec-priority-tbody').innerHTML = data.byPriority.map(p => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold uppercase">${p.priority}</td>
+        <td class="px-5 py-3 text-right">${p.recommended}</td>
+        <td class="px-5 py-3 text-right text-secondary">${p.accepted}</td>
+        <td class="px-5 py-3 text-right text-primary">${p.acceptanceRate}%</td>
+      </tr>`).join('') || '<tr><td colspan="4" class="px-5 py-6 text-center text-on-surface-variant/40">No data</td></tr>';
+    }
+    function exportRecommendations() {
+      if (!currentRecData) return;
+      const rows = [['Vehicle', 'Recommended', 'Accepted', 'Acceptance Rate %']];
+      currentRecData.byVehicle.forEach(v => rows.push([v.vehicleName, v.recommended, v.accepted, v.acceptanceRate]));
+      rows.push([]); rows.push(['Priority', 'Recommended', 'Accepted', 'Acceptance Rate %']);
+      currentRecData.byPriority.forEach(p => rows.push([p.priority, p.recommended, p.accepted, p.acceptanceRate]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-recommendation-effectiveness-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Recommendation effectiveness report exported as CSV');
+    }
+
+    // ── BOOKINGS ──────────────────────────────────────────────────────────
+    function renderBookings(bookings) {
+      const tbody = document.getElementById('bookings-tbody');
+      document.getElementById('no-bookings').classList.toggle('hidden', bookings.length > 0);
+      tbody.innerHTML = bookings.map(b => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-primary font-bold">${b.id}</td>
+        <td class="px-5 py-3">${(b.vehicleId || '—').replace(/-/g, ' ').toUpperCase()}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(b.rider?.name || '—')}</td>
+        <td class="px-5 py-3">${b.days || '—'} days</td>
+        <td class="px-5 py-3 text-right text-primary">${b.total ? WRG.peso(b.total) : '—'}</td>
+        <td class="px-5 py-3"><span class="badge-confirmed px-2 py-0.5 text-[9px] uppercase">${b.status || 'pending'}</span></td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</td>
+        <td class="px-5 py-3">
+          <button onclick="openDeleteModal('${b.id}')" class="font-label-mono text-[9px] uppercase text-error/60 hover:text-error border border-error/20 hover:border-error px-2 py-1 transition-colors">Delete</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No bookings</td></tr>';
+    }
+
+    function filterBookings() {
+      const q = document.getElementById('booking-search').value.toLowerCase();
+      const filtered = allBookings.filter(b =>
+        b.id?.toLowerCase().includes(q) ||
+        b.vehicleId?.toLowerCase().includes(q) ||
+        b.rider?.name?.toLowerCase().includes(q)
+      );
+      renderBookings(filtered);
+    }
+
+    function exportBookings() {
+      const rows = [['Ref ID', 'Vehicle', 'Rider/Driver', 'Days', 'Total', 'Status', 'Created']];
+      allBookings.forEach(b => rows.push([b.id, b.vehicleId, b.rider?.name || '', b.days || '', b.total || '', b.status || '', b.createdAt || '']));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-bookings-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Bookings exported as CSV');
+    }
+
+    function openDeleteModal(id) { pendingDeleteId = id; document.getElementById('delete-booking-id').textContent = id; document.getElementById('delete-modal').classList.remove('hidden'); }
+    function closeDeleteModal() { pendingDeleteId = null; document.getElementById('delete-modal').classList.add('hidden'); }
+    function confirmDelete() {
+      if (!pendingDeleteId) return;
+      const updated = allBookings.filter(b => b.id !== pendingDeleteId);
+      localStorage.setItem('wrg_bookings', JSON.stringify(updated));
+      closeDeleteModal();
+      refreshDashboard();
+      WRG.toast('Booking deleted');
+    }
+
+    // ── USERS ─────────────────────────────────────────────────────────────
+    function renderUsers(users) {
+      const tbody = document.getElementById('users-tbody');
+      document.getElementById('no-users').classList.toggle('hidden', users.length > 0);
+      tbody.innerHTML = users.map(u => {
+        const vehicleOptions = ['<option value="">— None —</option>']
+          .concat(allFleet.map(v => `<option value="${v.id}" ${String(u.assigned_vehicle) === String(v.id) ? 'selected' : ''}>${escapeHtml(v.name)}</option>`))
+          .join('');
+        const currentVehicle = allFleet.find(v => String(v.id) === String(u.assigned_vehicle));
+        return `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-secondary/70">${u.id}</td>
+        <td class="px-5 py-3 text-on-background font-bold">${escapeHtml(u.name || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(u.email || '—')}</td>
+        <td class="px-5 py-3">${escapeHtml(u.license || '—')}</td>
+        <td class="px-5 py-3"><span class="font-label-mono text-[9px] uppercase px-2 py-0.5 border ${u.role === 'admin' ? 'border-primary/40 text-primary' : 'border-secondary/30 text-secondary'}">${u.role || 'rider'}</span></td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</td>
+        <td class="px-5 py-3">
+          <div class="flex items-center gap-2">
+            <select id="assign-select-${u.id}" class="bg-surface-container-high border border-outline-variant px-2 py-1.5 font-label-mono text-[10px] text-secondary chamfer-sm">${vehicleOptions}</select>
+            <button onclick="assignVehicle('${u.id}')" class="font-label-mono text-[9px] uppercase text-secondary/80 hover:text-secondary border border-secondary/30 hover:border-secondary px-2 py-1.5 transition-colors whitespace-nowrap">Assign</button>
+          </div>
+          ${currentVehicle ? `<div class="font-label-mono text-[9px] text-secondary/60 mt-1">Currently: ${escapeHtml(currentVehicle.name)}</div>` : ''}
+        </td>
+        <td class="px-5 py-3">
+          <button onclick="removeUser('${u.id}')" class="font-label-mono text-[9px] uppercase text-error/60 hover:text-error border border-error/20 hover:border-error px-2 py-1 transition-colors">Remove</button>
+        </td>
+      </tr>`;
+      }).join('') || '<tr><td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No users</td></tr>';
+    }
+
+    function assignVehicle(riderId) {
+      const select = document.getElementById('assign-select-' + riderId);
+      const vehicleId = select.value || null;
+      WRG.api.assignVehicleToRider(riderId, vehicleId).then(() => {
+        WRG.toast(vehicleId ? 'Vehicle assigned to rider/driver' : 'Assignment cleared');
+        return WRG.api.getAllUsers();
+      }).then(users => {
+        allUsers = users;
+        renderUsers(users);
+      }).catch(err => {
+        WRG.toast(err.message || 'Failed to assign vehicle');
+      });
+    }
+
+    function filterUsers() {
+      const q = document.getElementById('user-search').value.toLowerCase();
+      renderUsers(allUsers.filter(u => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)));
+    }
+
+    function removeUser(id) {
+      if (!confirm('Remove this user from the registry?')) return;
+      const updated = allUsers.filter(u => u.id !== id);
+      localStorage.setItem('wrg_users', JSON.stringify(updated));
+      allUsers = updated;
+      renderUsers(updated);
+      document.getElementById('stat-total-users').textContent = updated.length;
+      WRG.toast('User removed');
+    }
+
+    // ── FLEET ─────────────────────────────────────────────────────────────
+    function renderAdminFleet(fleet, bookings, availabilityMap) {
+      availabilityMap = availabilityMap || {};
+      document.getElementById('admin-fleet-grid').innerHTML = fleet.map(v => {
+        const deployments = bookings.filter(b => b.vehicleId === v.id);
+        const revenue = deployments.reduce((s, b) => s + (b.total || 0), 0);
+        const isAvailable = availabilityMap[v.id] !== false;
+        return `
+      <div class="bg-surface-container-low border border-outline-variant chamfer p-0 overflow-hidden">
+        <div class="h-36 bg-surface-container-high flex items-center justify-center text-4xl border-b border-outline-variant relative">
+          <div class="w-full h-full bg-cover bg-center opacity-60" style="background-image:url('${v.img}')"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+          <div class="absolute bottom-3 left-4 font-label-mono text-[10px] text-primary uppercase">${v.cls}</div>
+        </div>
+        <div class="p-4">
+          <div class="font-display-lg text-lg uppercase font-bold mb-1">${v.name}</div>
+          <div class="grid grid-cols-3 gap-3 mt-3">
+            <div class="bg-surface-container p-2 text-center"><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Rate/Day</div><div class="font-label-mono text-xs text-primary">${WRG.peso(v.ratePerDay)}</div></div>
+            <div class="bg-surface-container p-2 text-center"><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Deployments</div><div class="font-label-mono text-xs text-secondary">${deployments.length}</div></div>
+            <div class="bg-surface-container p-2 text-center"><div class="font-label-mono text-[8px] text-on-surface-variant/50 uppercase">Revenue</div><div class="font-label-mono text-xs text-primary">${WRG.peso(revenue)}</div></div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            ${v.tags.map(t => `<span class="font-label-mono text-[9px] border border-outline-variant/40 px-2 py-0.5 text-on-surface-variant">${t}</span>`).join('')}
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full ${isAvailable ? 'bg-green-400 animate-pulse' : 'bg-error'}"></div>
+            <span class="font-label-mono text-[10px] uppercase ${isAvailable ? 'text-green-400' : 'text-error'}">${isAvailable ? 'Available' : 'Currently Booked'}</span>
+          </div>
+        </div>
+      </div>`;
+      }).join('');
+    }
+
+    // ── VERIFICATION ──────────────────────────────────────────────────────
+    function renderVerifications(list) {
+      const tbody = document.getElementById('verification-tbody');
+      document.getElementById('no-verifications').classList.toggle('hidden', list.length > 0);
+      const pending = list.filter(v => v.status === 'pending').length;
+      const badge = document.getElementById('verif-badge');
+      badge.classList.toggle('hidden', pending === 0);
+      badge.textContent = pending;
+
+      tbody.innerHTML = list.map(v => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${escapeHtml(v.userName || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(v.userEmail || '—')}</td>
+        <td class="px-5 py-3">${v.depositAmount ? WRG.peso(v.depositAmount) : '—'}</td>
+        <td class="px-5 py-3">${typeof v.score === 'number' ? `<span class="font-label-mono text-[9px] ${v.riskFlag ? 'text-primary' : 'text-secondary'}">${v.score}/100${v.riskFlag ? ' ⚠' : ''}</span>` : '<span class="text-on-surface-variant/30">—</span>'}</td>
+        <td class="px-5 py-3"><span class="px-2 py-0.5 text-[9px] uppercase ${v.status === 'approved' ? 'badge-confirmed' : v.status === 'rejected' ? '' : 'badge-pending'}" style="${v.status === 'rejected' ? 'background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)' : ''}">${v.status}</span></td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${v.submittedAt ? new Date(v.submittedAt).toLocaleDateString('en-PH') : '—'}</td>
+        <td class="px-5 py-3">
+          <button onclick="openVerifModal('${v.id}')" class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 transition-colors">Review</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" class="px-5 py-6 text-center text-on-surface-variant/40">No submissions</td></tr>';
+    }
+
+    function openVerifModal(id) {
+      const v = allVerifications.find(x => x.id === id);
+      if (!v) return;
+      currentVerifId = id;
+      document.getElementById('verif-modal-name').textContent = v.userName || 'Unknown Rider/Driver';
+      document.getElementById('verif-modal-email').textContent = v.userEmail || '';
+      document.getElementById('verif-note').value = v.reviewNote || '';
+      const docs = [
+        ['Government ID', v.govId], ["Driver's License", v.license],
+        ['Proof of Residency', v.residency], ['Police / NBI Clearance', v.clearance]
+      ];
+      document.getElementById('verif-modal-docs').innerHTML = docs.map(([label, src]) => `
+      <div>
+        <div class="font-label-mono text-[9px] text-on-surface-variant/60 uppercase mb-1">${label}</div>
+        ${src ? `<img src="${src}" onclick="window.open('${src}', '_blank')" class="w-full h-48 object-cover border border-outline-variant chamfer-sm cursor-zoom-in hover:opacity-80 transition-opacity"/>` : `<div class="w-full h-48 flex items-center justify-center border border-outline-variant/40 text-on-surface-variant/30 text-[10px] uppercase">No file</div>`}
+      </div>`).join('');
+
+      const gateInputBase = { birthdate: v.birthdate, govId: v.govId, license: v.license, residency: v.residency, clearance: v.clearance, agreementAccepted: v.agreementAccepted, depositAmount: v.depositAmount };
+      WRG.api.getRiskProfileForUser(v.userId).then(risk => {
+        const gate = WRG.api.evaluateVerificationGate({ ...gateInputBase, risk });
+        document.getElementById('verif-modal-gate').innerHTML = gate.path.map((step, i) => `
+        <div class="flex items-start gap-2 border border-outline-variant/30 chamfer-sm p-2">
+          <div class="w-4 h-4 flex items-center justify-center text-[8px] font-bold shrink-0 border border-secondary text-secondary">${i + 1}</div>
+          <div><span class="text-on-surface-variant/60 uppercase">${step.node}:</span> <span class="text-on-background">${step.result}</span></div>
+        </div>`).join('') + `<div class="font-bold uppercase text-[10px] mt-1 ${gate.verdict === 'INCOMPLETE' ? 'text-error' : gate.verdict === 'FLAGGED' ? 'text-primary' : 'text-secondary'}">Verdict: ${gate.verdict.replace(/_/g, ' ')} — Score: ${gate.score}/100</div>`;
+      });
+
+      document.getElementById('verif-modal').classList.remove('hidden');
+    }
+
+    function closeVerifModal() {
+      currentVerifId = null;
+      document.getElementById('verif-modal').classList.add('hidden');
+    }
+
+    function reviewCurrent(decision) {
+      if (!currentVerifId) return;
+      const note = document.getElementById('verif-note').value.trim();
+      WRG.api.reviewVerification(currentVerifId, decision, note).then(() => {
+        WRG.toast(decision === 'approve' ? 'Renter approved' : 'Renter rejected');
+        closeVerifModal();
+        refreshDashboard();
+      });
+    }
+
+    // ── OVERDUE RETURNS (Report 8) ──────────────────────────────────────────
+    let allOverdue = [];
+    function loadOverdue() {
+      WRG.api.getOverdueReturns().then(list => { allOverdue = list; renderOverdue(list); });
+    }
+    function renderOverdue(list) {
+      const tbody = document.getElementById('overdue-tbody');
+      document.getElementById('no-overdue').classList.toggle('hidden', list.length > 0);
+      const stillOut = list.filter(r => r.stillOut);
+      const late = list.filter(r => !r.stillOut);
+      document.getElementById('overdue-out-count').textContent = stillOut.length;
+      document.getElementById('overdue-late-count').textContent = late.length;
+      document.getElementById('overdue-avg-days').textContent = list.length ? Math.round((list.reduce((s, r) => s + r.daysOverdue, 0) / list.length) * 10) / 10 : 0;
+      const badge = document.getElementById('overdue-badge');
+      badge.classList.toggle('hidden', stillOut.length === 0);
+      badge.textContent = stillOut.length;
+
+      tbody.innerHTML = list.map(r => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-primary font-bold">${r.id}</td>
+        <td class="px-5 py-3 text-on-background">${r.vehicleName}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(r.riderName)}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${new Date(r.expectedReturnDate).toLocaleDateString('en-PH')}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${r.returnAt ? new Date(r.returnAt).toLocaleDateString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-right text-error font-bold">${r.daysOverdue}</td>
+        <td class="px-5 py-3">${r.stillOut ? '<span class="px-2 py-0.5 text-[9px] uppercase" style="background:rgba(255,85,64,.12);color:#ff5540;border:1px solid rgba(255,85,64,.4)">Still Out</span>' : '<span class="px-2 py-0.5 text-[9px] uppercase badge-pending">Returned Late</span>'}</td>
+        <td class="px-5 py-3">${r.stillOut ? `<button onclick="sendReminder('${r.id}')" class="font-label-mono text-[9px] uppercase text-secondary hover:text-primary border border-secondary/30 hover:border-primary px-2 py-1 transition-colors">Send Reminder</button>` : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="8" class="px-5 py-6 text-center text-on-surface-variant/40">No overdue returns</td></tr>';
+    }
+    function sendReminder(id) {
+      WRG.api.sendOverdueReminder(id).then(() => { WRG.toast('Overdue reminder logged/sent'); loadNotifications(); });
+    }
+    function exportOverdue() {
+      const rows = [['Booking ID', 'Vehicle', 'Rider/Driver', 'Expected Return', 'Actual Return', 'Days Overdue', 'Still Out']];
+      allOverdue.forEach(r => rows.push([r.id, r.vehicleName, r.riderName, r.expectedReturnDate, r.returnAt || '', r.daysOverdue, r.stillOut]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-overdue-returns-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Overdue return report exported as CSV');
+    }
+
+    // ── FUEL & MILEAGE (Report 9) ───────────────────────────────────────────
+    let currentFuelMileageData = null;
+    function loadFuelMileage() {
+      WRG.api.getFuelMileageReport().then(data => renderFuelMileage(data));
+    }
+    function renderFuelMileage(data) {
+      currentFuelMileageData = data;
+      document.getElementById('fm-total-trips').textContent = data.totalTrips;
+      document.getElementById('fm-total-mileage').textContent = data.totalMileage.toLocaleString('en-PH') + ' km';
+      document.getElementById('fm-avg-mileage').textContent = (data.totalTrips ? Math.round(data.totalMileage / data.totalTrips) : 0).toLocaleString('en-PH') + ' km';
+
+      document.getElementById('fm-vehicle-tbody').innerHTML = data.byVehicle.map(v => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-background font-bold">${v.vehicleName}</td>
+        <td class="px-5 py-3 text-right">${v.trips}</td>
+        <td class="px-5 py-3 text-right text-secondary">${v.totalMileage.toLocaleString('en-PH')} km</td>
+        <td class="px-5 py-3 text-right">${v.avgMileagePerTrip.toLocaleString('en-PH')} km</td>
+        <td class="px-5 py-3 text-right">${v.avgFuelUsedPct != null ? v.avgFuelUsedPct + '%' : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="px-5 py-6 text-center text-on-surface-variant/40">No data</td></tr>';
+
+      const tbody = document.getElementById('fm-trips-tbody');
+      document.getElementById('no-fuelmileage').classList.toggle('hidden', data.trips.length > 0);
+      tbody.innerHTML = data.trips.map(t => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-primary font-bold">${t.id}</td>
+        <td class="px-5 py-3 text-on-background">${t.vehicleName}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(t.riderName)}</td>
+        <td class="px-5 py-3 text-right text-on-surface-variant/60">${t.odometerStart != null ? t.odometerStart.toLocaleString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-right text-on-surface-variant/60">${t.odometerEnd != null ? t.odometerEnd.toLocaleString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-right text-secondary">${t.mileage.toLocaleString('en-PH')} km</td>
+        <td class="px-5 py-3 text-right">${t.fuelUsedPct != null ? t.fuelUsedPct + '%' : '—'}</td>
+        <td class="px-5 py-3 text-on-surface-variant/60">${t.returnAt ? new Date(t.returnAt).toLocaleDateString('en-PH') : '—'}</td>
+      </tr>`).join('');
+    }
+    function exportFuelMileage() {
+      if (!currentFuelMileageData) return;
+      const rows = [['Booking ID', 'Vehicle', 'Rider/Driver', 'Odometer Start', 'Odometer End', 'Distance (km)', 'Fuel Used (%)', 'Returned']];
+      currentFuelMileageData.trips.forEach(t => rows.push([t.id, t.vehicleName, t.riderName, t.odometerStart, t.odometerEnd, t.mileage, t.fuelUsedPct, t.returnAt || '']));
+      rows.push([]); rows.push(['Vehicle', 'Trips', 'Total Distance', 'Avg / Trip', 'Avg Fuel Used %']);
+      currentFuelMileageData.byVehicle.forEach(v => rows.push([v.vehicleName, v.trips, v.totalMileage, v.avgMileagePerTrip, v.avgFuelUsedPct]));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-fuel-mileage-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Fuel & mileage report exported as CSV');
+    }
+
+    // ── EMAIL NOTIFICATION LOG (Report 10) ──────────────────────────────────
+    let allNotifications = [];
+    const NOTIF_TYPE_LABELS = {
+      booking_submitted: 'Reservation Received', booking_approved: 'Reservation Approved',
+      booking_rejected: 'Reservation Rejected', booking_pickup: 'Vehicle Picked Up',
+      booking_returned: 'Vehicle Returned', booking_overdue: 'Overdue Reminder',
+      verification_submitted: 'Verification Received', verification_approved: 'Verification Approved',
+      verification_rejected: 'Verification Rejected', review_submitted: 'New Review Received',
+      review_response: 'Review Reply Sent'
+    };
+    function loadNotifications() {
+      WRG.api.getNotificationLog().then(list => { allNotifications = list; renderNotifications(list); });
+    }
+    function renderNotifications(list) {
+      const tbody = document.getElementById('notifications-tbody');
+      document.getElementById('no-notifications').classList.toggle('hidden', list.length > 0);
+      document.getElementById('ntf-total').textContent = list.length;
+      const dayAgo = Date.now() - 86400000;
+      document.getElementById('ntf-last24').textContent = list.filter(n => new Date(n.sentAt).getTime() >= dayAgo).length;
+      const counts = {};
+      list.forEach(n => counts[n.type] = (counts[n.type] || 0) + 1);
+      const topType = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+      document.getElementById('ntf-top-type').textContent = topType ? (NOTIF_TYPE_LABELS[topType] || topType) : '—';
+
+      tbody.innerHTML = list.map(n => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-surface-variant/60">${n.sentAt ? new Date(n.sentAt).toLocaleString('en-PH') : '—'}</td>
+        <td class="px-5 py-3"><span class="font-label-mono text-[9px] uppercase px-2 py-0.5 border border-secondary/30 text-secondary">${NOTIF_TYPE_LABELS[n.type] || n.type}</span></td>
+        <td class="px-5 py-3 text-on-background">${escapeHtml(n.subject || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(n.recipientName || '—')}${n.recipientEmail ? ' · ' + escapeHtml(n.recipientEmail) : ''}</td>
+        <td class="px-5 py-3 text-primary/80">${n.relatedId || '—'}</td>
+        <td class="px-5 py-3"><span class="px-2 py-0.5 text-[9px] uppercase badge-confirmed">${n.status || 'sent'}</span></td>
+      </tr>`).join('') || '<tr><td colspan="6" class="px-5 py-6 text-center text-on-surface-variant/40">No notifications logged yet</td></tr>';
+    }
+    function filterNotifications() {
+      const type = document.getElementById('notification-type-filter').value;
+      const q = document.getElementById('notification-search').value.toLowerCase();
+      renderNotifications(allNotifications.filter(n =>
+        (!type || n.type === type) &&
+        ((n.recipientName || '').toLowerCase().includes(q) || (n.recipientEmail || '').toLowerCase().includes(q) || (n.subject || '').toLowerCase().includes(q))
+      ));
+    }
+    function exportNotifications() {
+      const rows = [['Sent At', 'Type', 'Subject', 'Recipient Name', 'Recipient Email', 'Related ID', 'Status']];
+      allNotifications.forEach(n => rows.push([n.sentAt || '', NOTIF_TYPE_LABELS[n.type] || n.type, n.subject || '', n.recipientName || '', n.recipientEmail || '', n.relatedId || '', n.status || '']));
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-notification-log-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Notification log exported as CSV');
+    }
+
+    // ── SUPPORT TICKETS ───────────────────────────────────────────────────
+    let allSupportTickets = [];
+    let activeTicketId = null;
+    function loadSupportTickets() {
+      WRG.api.getAllSupportTickets().then(list => { allSupportTickets = list; renderSupportTickets(list); });
+    }
+    function renderSupportTickets(list) {
+      const tbody = document.getElementById('support-tickets-tbody');
+      document.getElementById('no-support-tickets').classList.toggle('hidden', list.length > 0);
+      document.getElementById('tck-total').textContent = allSupportTickets.length;
+      document.getElementById('tck-open').textContent = allSupportTickets.filter(t => t.status === 'open').length;
+      document.getElementById('tck-resolved').textContent = allSupportTickets.filter(t => t.status === 'resolved').length;
+
+      const supportBadge = document.getElementById('support-badge');
+      const openCount = allSupportTickets.filter(t => t.status === 'open').length;
+      supportBadge.classList.toggle('hidden', openCount === 0);
+      supportBadge.textContent = openCount;
+
+      tbody.innerHTML = list.map(t => `
+      <tr class="admin-row border-b border-outline-variant/20">
+        <td class="px-5 py-3 text-on-surface-variant/60">${t.createdAt ? new Date(t.createdAt).toLocaleString('en-PH') : '—'}</td>
+        <td class="px-5 py-3 text-on-background">${escapeHtml(t.name || '—')}</td>
+        <td class="px-5 py-3 text-on-surface-variant">${escapeHtml(t.email || '—')}</td>
+        <td class="px-5 py-3"><span class="font-label-mono text-[9px] uppercase px-2 py-0.5 border border-secondary/30 text-secondary">${escapeHtml(t.category || 'General Inquiry')}</span></td>
+        <td class="px-5 py-3 text-on-surface-variant max-w-xs truncate">${escapeHtml(t.message || '')}</td>
+        <td class="px-5 py-3">${statusBadge(t.status)}</td>
+        <td class="px-5 py-3"><button onclick="openTicketModal('${t.id}')" class="text-secondary hover:text-primary uppercase text-[10px]">View</button></td>
+      </tr>`).join('') || '<tr><td colspan="7" class="px-5 py-6 text-center text-on-surface-variant/40">No support tickets yet</td></tr>';
+    }
+    function filterSupportTickets() {
+      const status = document.getElementById('ticket-status-filter').value;
+      const q = document.getElementById('ticket-search').value.toLowerCase();
+      renderSupportTickets(allSupportTickets.filter(t =>
+        (!status || t.status === status) &&
+        ((t.name || '').toLowerCase().includes(q) || (t.email || '').toLowerCase().includes(q))
+      ));
+    }
+    function openTicketModal(id) {
+      const t = allSupportTickets.find(x => String(x.id) === String(id));
+      if (!t) return;
+      activeTicketId = t.id;
+      document.getElementById('ticket-modal-id').textContent = t.id;
+      document.getElementById('ticket-modal-from').textContent = (t.name || '—') + ' · ' + (t.email || '—');
+      document.getElementById('ticket-modal-category').textContent = t.category || 'General Inquiry';
+      document.getElementById('ticket-modal-date').textContent = t.createdAt ? new Date(t.createdAt).toLocaleString('en-PH') : '—';
+      document.getElementById('ticket-modal-message').textContent = t.message || '';
+      document.getElementById('ticket-modal').classList.remove('hidden');
+    }
+    function closeTicketModal() {
+      document.getElementById('ticket-modal').classList.add('hidden');
+      activeTicketId = null;
+    }
+    function markTicketStatus(status) {
+      if (!activeTicketId) return;
+      WRG.api.updateSupportTicket(activeTicketId, { status }).then(() => {
+        WRG.toast('Ticket marked ' + status.replace('_', ' '));
+        closeTicketModal();
+        loadSupportTickets();
+      }).catch(err => WRG.toast(err.message || 'Could not update ticket'));
+    }
+    function exportSupportTickets() {
+      const rows = [['Received At', 'Name', 'Email', 'Category', 'Message', 'Status']];
+      allSupportTickets.forEach(t => rows.push([t.createdAt || '', t.name || '', t.email || '', t.category || '', t.message || '', t.status || '']));
+      const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = 'wheelrentrago-support-tickets-' + new Date().toISOString().slice(0, 10) + '.csv';
+      link.click();
+      WRG.toast('Support tickets exported as CSV');
+    }
+
+    // ── REVIEWS ──────────────────────────────────────────────────────────
+    let allReviews = [];
+    function loadReviews() {
+      WRG.api.getAllReviews().then(list => { allReviews = list; renderReviews(list); });
+      loadReviewAnalytics();
+    }
+
+    function loadReviewAnalytics() {
+      Promise.all([WRG.api.getVehicleReviewStats(), WRG.api.getReviewInsights(6)]).then(([vehicleStats, insights]) => {
+        renderVehiclePerformance(vehicleStats);
+        renderRatingDistribution(insights.distribution, insights.totalReviews);
+        renderRatingTrend(insights.trend);
+        const flagEl = document.getElementById('rev-low-flag');
+        flagEl.textContent = insights.lowRatingCount > 0 ? `⚠ ${insights.lowRatingCount} LOW (≤2★) REVIEW${insights.lowRatingCount === 1 ? '' : 'S'}` : '';
+      });
+    }
+
+    function renderVehiclePerformance(stats) {
+      const tbody = document.getElementById('vehicle-perf-tbody');
+      tbody.innerHTML = stats.map(s => {
+        const noData = s.avgRating === null;
+        const low = !noData && s.avgRating < 3.5;
+        const statusLabel = noData ? 'No reviews yet' : low ? 'Needs attention' : 'Healthy';
+        const statusColor = noData ? 'text-on-surface-variant/40 border-outline-variant/30' : low ? 'text-error border-error/40' : 'text-secondary border-secondary/30';
+        return `
+        <tr class="admin-row border-b border-outline-variant/20">
+          <td class="px-5 py-3 text-on-background font-bold">${escapeHtml(s.vehicleName)}</td>
+          <td class="px-5 py-3 ${low ? 'text-error' : 'text-on-background'}">${noData ? '—' : s.avgRating.toFixed(1) + ' / 5'}</td>
+          <td class="px-5 py-3 text-on-surface-variant">${s.reviewCount}</td>
+          <td class="px-5 py-3"><span class="font-label-mono text-[9px] uppercase px-2 py-0.5 border ${statusColor}">${statusLabel}</span></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" class="px-5 py-6 text-center text-on-surface-variant/40">No vehicles in fleet</td></tr>';
+    }
+
+    function renderRatingDistribution(distribution, total) {
+      const wrap = document.getElementById('rating-distribution');
+      wrap.innerHTML = distribution.map(d => {
+        const pct = total ? Math.round((d.count / total) * 100) : 0;
+        return `
+        <div class="flex items-center gap-3">
+          <span class="font-label-mono text-[10px] text-on-surface-variant w-10 shrink-0">${d.star}★</span>
+          <div class="flex-1 h-2 bg-surface-variant/30">
+            <div class="h-full bg-primary" style="width:${pct}%"></div>
+          </div>
+          <span class="font-label-mono text-[10px] text-on-surface-variant/60 w-16 text-right shrink-0">${d.count} (${pct}%)</span>
+        </div>`;
+      }).join('');
+    }
+
+    function renderRatingTrend(trend) {
+      const wrap = document.getElementById('rating-trend');
+      const max = 5;
+      wrap.innerHTML = trend.map(t => {
+        const h = t.avgRating === null ? 2 : Math.max(4, Math.round((t.avgRating / max) * 100));
+        return `
+        <div class="flex-1 flex flex-col items-center justify-end h-full gap-1">
+          <span class="font-label-mono text-[9px] text-on-surface-variant/60">${t.avgRating === null ? '—' : t.avgRating}</span>
+          <div class="w-full bg-secondary/70" style="height:${h}%"></div>
+          <span class="font-label-mono text-[8px] text-on-surface-variant/40 uppercase">${t.label}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function starRow(rating) {
+      const n = Math.max(0, Math.min(5, Number(rating) || 0));
+      return '<span class="text-primary">' + '★'.repeat(n) + '</span><span class="text-on-surface-variant/20">' + '★'.repeat(5 - n) + '</span>';
+    }
+    function renderReviews(list) {
+      const wrap = document.getElementById('reviews-list');
+      document.getElementById('no-reviews').classList.toggle('hidden', list.length > 0);
+
+      document.getElementById('rev-total').textContent = allReviews.length;
+      const avg = allReviews.length ? (allReviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / allReviews.length) : 0;
+      document.getElementById('rev-avg').textContent = allReviews.length ? avg.toFixed(1) + ' / 5' : '—';
+      const pendingCount = allReviews.filter(r => !r.operatorReply).length;
+      document.getElementById('rev-pending').textContent = pendingCount;
+
+      const revBadge = document.getElementById('reviews-badge');
+      revBadge.classList.toggle('hidden', pendingCount === 0);
+      revBadge.textContent = pendingCount;
+
+      wrap.innerHTML = list.map(r => `
+      <div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+        <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+          <div>
+            <div class="font-label-mono text-sm text-on-background font-bold">${escapeHtml(r.riderName || 'Rider/Driver')}</div>
+            <div class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">${escapeHtml(r.vehicleName || '—')} · ${r.createdAt ? new Date(r.createdAt).toLocaleString('en-PH') : '—'}</div>
+          </div>
+          <div class="font-label-mono text-sm">${starRow(r.rating)}</div>
+        </div>
+        <p class="font-body-md text-sm text-on-background bg-black/20 border border-outline-variant/30 p-3 mb-3 whitespace-pre-wrap">${escapeHtml(r.comment || '')}</p>
+        ${r.operatorReply ? `
+        <div class="border-l-2 border-secondary pl-3 mb-3">
+          <div class="font-label-mono text-[9px] text-secondary uppercase mb-1">WheelRentraGo replied${r.repliedAt ? ' · ' + new Date(r.repliedAt).toLocaleDateString('en-PH') : ''}</div>
+          <p class="font-body-md text-sm text-on-surface-variant whitespace-pre-wrap">${escapeHtml(r.operatorReply)}</p>
+        </div>
+        <button onclick="toggleReplyForm('${r.id}')" class="font-label-mono text-[10px] text-secondary hover:text-primary uppercase">Edit Reply</button>
+        ` : `
+        <button onclick="toggleReplyForm('${r.id}')" class="font-label-mono text-[10px] text-primary hover:text-secondary uppercase flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">reply</span> Reply as WheelRentraGo
+        </button>
+        `}
+        <div id="reply-form-${r.id}" class="hidden mt-3 space-y-2">
+          <textarea id="reply-text-${r.id}" rows="2" placeholder="Write a public reply…"
+            class="w-full bg-surface-container-lowest border border-outline-variant chamfer-sm p-3 font-label-mono text-xs text-on-background">${escapeHtml(r.operatorReply || '')}</textarea>
+          <div class="flex gap-2">
+            <button onclick="submitReviewReply('${r.id}')"
+              class="px-4 py-2 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-sm hover:brightness-110 transition-all">Post Reply</button>
+            <button onclick="toggleReplyForm('${r.id}')"
+              class="px-4 py-2 font-label-mono text-[10px] text-on-surface-variant/50 uppercase hover:text-error transition-colors">Cancel</button>
+          </div>
+        </div>
+      </div>`).join('');
+    }
+    function filterReviews() {
+      const mode = document.getElementById('review-filter').value;
+      const list = allReviews.filter(r =>
+        mode === 'unreplied' ? !r.operatorReply :
+        mode === 'replied' ? !!r.operatorReply : true
+      );
+      renderReviews(list);
+    }
+    function toggleReplyForm(id) {
+      document.getElementById('reply-form-' + id).classList.toggle('hidden');
+    }
+    function submitReviewReply(id) {
+      const text = document.getElementById('reply-text-' + id).value.trim();
+      if (!text) { WRG.toast('Reply cannot be empty'); return; }
+      WRG.api.respondToReview(id, text).then(() => {
+        WRG.toast('Reply posted');
+        loadReviews();
+      }).catch(err => WRG.toast(err.message || 'Could not post reply'));
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<title>WheelRentraGo | Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="style.build.css" rel="stylesheet"/>
+<style>
+  .scan-line { background: linear-gradient(to bottom, transparent 50%, rgba(0,238,252,0.04) 50%); background-size:100% 4px; }
+  .skel { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%); background-size: 400% 100%; animation: skel 1.4s ease infinite; }
+  @keyframes skel { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+</style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary-container selection:text-white" x-data="dashboardPage()" x-init="load()">
+
+<header class="fixed top-0 w-full z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.3)]">
+<div class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<a href="index.html" class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter cursor-pointer">WheelRentraGo</a>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="fleet.html">Catalog</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="recommend.html">AI Match</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="tracking.html">Tracking</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="bookings.html">My Rentals</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="account.html">Account</a>
+</nav>
+<div class="flex items-center space-x-6">
+<div class="hidden sm:flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">smart_toy</span>
+<span class="material-symbols-outlined text-on-background opacity-70 hover:opacity-100 cursor-pointer">notifications</span>
+</div>
+<a href="fleet.html" class="bg-primary-container text-on-primary-container px-6 py-2 chamfer-clip-sm font-bold uppercase tracking-tighter active:scale-95 duration-100 inline-block">Rent Now</a>
+<button onclick="document.getElementById('mobile-menu-panel').classList.toggle('hidden')" class="md:hidden flex items-center justify-center w-9 h-9 text-primary">
+    <span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+<div id="mobile-menu-panel" class="hidden md:hidden bg-surface-container-low border-t border-outline-variant">
+    <div class="flex flex-col px-6 py-2">
+        <a href="fleet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Catalog</a>
+        <a href="recommend.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">AI Match</a>
+        <a href="tracking.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Tracking</a>
+        <a href="bookings.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">My Rentals</a>
+        <a href="account.html" class="py-3 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Account</a>
+    </div>
+</div>
+</header>
+
+<div class="flex pt-24 min-h-screen">
+
+<aside class="hidden lg:flex flex-col h-screen sticky top-24 w-64 py-8 space-y-6 bg-surface-container-low border-r border-outline-variant shadow-lg">
+<div class="px-6 flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-primary flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary text-lg">person</span>
+</div>
+<div>
+<div id="sidebar-name" class="font-label-mono text-label-mono font-bold text-on-surface">Rider_Zero</div>
+<div id="sidebar-status" class="text-[10px] text-secondary uppercase font-bold tracking-widest">Elite Status</div>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center space-x-4 bg-secondary-container text-on-secondary-container rounded-r-full mr-4 p-3 group" href="dashboard.html">
+<span class="material-symbols-outlined">dashboard</span><span class="font-label-mono text-label-mono">Dashboard</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="fleet.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">directions_car</span><span class="font-label-mono text-label-mono">Garage</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="bookings.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">receipt_long</span><span class="font-label-mono text-label-mono">My Rentals</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="tracking.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">explore</span><span class="font-label-mono text-label-mono">Maps</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="recommend.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">psychology</span><span class="font-label-mono text-label-mono">AI Match</span>
+</a>
+</nav>
+<div class="px-4 pb-8 space-y-2">
+<a href="tracking.html" class="block text-center w-full bg-outline-variant text-white py-3 chamfer-clip font-label-mono text-label-mono hover:bg-primary-container transition-colors duration-300">Scan Vehicle</a>
+<div class="border-t border-outline-variant/30 pt-4 space-y-1">
+<a class="flex items-center space-x-4 p-3 text-on-surface-variant hover:text-primary transition-colors" href="account.html">
+<span class="material-symbols-outlined">settings</span><span class="font-label-mono text-label-mono">Settings</span>
+</a>
+<a class="flex items-center space-x-4 p-3 text-on-surface-variant hover:text-error transition-colors" href="#" onclick="doLogout(); return false;">
+<span class="material-symbols-outlined">logout</span><span class="font-label-mono text-label-mono">Log Out</span>
+</a>
+</div>
+</div>
+</aside>
+
+<main class="flex-1 px-4 md:px-margin-desktop py-8 max-w-6xl mx-auto relative">
+<div class="fixed inset-0 scan-line opacity-20 pointer-events-none z-0"></div>
+
+<section class="mb-10 relative z-10">
+<div class="border-l-4 border-primary pl-6 flex flex-wrap items-end justify-between gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg uppercase tracking-tighter leading-none mb-2">Welcome back, <span id="greet-name" class="text-primary italic">Rider</span></h1>
+<p class="font-body-md text-on-surface-variant max-w-xl opacity-80 uppercase text-xs tracking-[0.2em]">Your rentals, at a glance</p>
+</div>
+<button x-show="loaded" @click="togglePush()" :disabled="pushBusy"
+  class="flex items-center gap-2 px-4 py-2 border font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm transition-all disabled:opacity-50"
+  :class="pushEnabled ? 'border-secondary text-secondary hover:bg-secondary/10' : 'border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary'">
+  <span class="material-symbols-outlined text-base" x-text="pushEnabled ? 'notifications_active' : 'notifications_off'"></span>
+  <span x-text="pushBusy ? 'Please wait…' : (pushEnabled ? 'Notifications On' : 'Enable Notifications')"></span>
+</button>
+</div>
+</section>
+
+<!-- Verification banner (shown only when relevant) -->
+<div x-show="loaded && vStatus !== 'approved'" class="relative z-10 mb-8 chamfer p-5 border flex flex-wrap items-center justify-between gap-4"
+  :class="{'border-primary-container/60 bg-primary-container/10': !vStatus, 'border-secondary/40 bg-secondary/5': vStatus === 'pending', 'border-error/40 bg-error/5': vStatus === 'rejected'}">
+  <template x-if="!vStatus">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary">badge</span>
+      <p class="font-label-mono text-xs text-on-surface-variant uppercase tracking-wide">Verify your ID to unlock bookings</p>
+    </div>
+  </template>
+  <template x-if="vStatus === 'pending'">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-secondary animate-pulse">hourglass_top</span>
+      <p class="font-label-mono text-xs text-on-surface-variant uppercase tracking-wide">Your ID verification is under review</p>
+    </div>
+  </template>
+  <template x-if="vStatus === 'rejected'">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-error">error</span>
+      <p class="font-label-mono text-xs text-on-surface-variant uppercase tracking-wide">Your verification was rejected — resubmit to continue</p>
+    </div>
+  </template>
+  <a x-show="!vStatus" href="verification.html" class="px-6 py-2 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm hover:brightness-110 transition-all">Start Verification</a>
+  <a x-show="vStatus === 'rejected'" href="verification.html" class="px-6 py-2 border border-error text-error font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm hover:bg-error hover:text-black transition-all">Resubmit</a>
+</div>
+
+<!-- Stat tiles -->
+<section class="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+<div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+<div class="font-label-mono text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Total Rentals</div>
+<div class="font-display-lg text-3xl text-primary" :class="{skel: !loaded}" x-text="loaded ? total : ''">&nbsp;</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+<div class="font-label-mono text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Active</div>
+<div class="font-display-lg text-3xl text-secondary" :class="{skel: !loaded}" x-text="loaded ? active : ''">&nbsp;</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+<div class="font-label-mono text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Completed</div>
+<div class="font-display-lg text-3xl text-on-surface" :class="{skel: !loaded}" x-text="loaded ? completed : ''">&nbsp;</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant chamfer p-5">
+<div class="font-label-mono text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Verification</div>
+<div class="font-label-mono text-sm uppercase" :class="[vColorClass, {skel: !loaded}]" x-text="vLabel">&nbsp;</div>
+</div>
+</section>
+
+<!-- Active booking spotlight -->
+<section x-show="loaded && activeBooking" class="relative z-10 mb-10">
+<h2 class="font-label-mono text-[11px] text-primary uppercase tracking-widest mb-4">Current Reservation</h2>
+<div class="bg-surface-container-low border border-primary/40 chamfer p-6">
+  <template x-if="activeBooking">
+    <div>
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="font-display-lg text-2xl uppercase" x-text="activeBooking.vehicleName || activeBooking.vehicleId || 'Vehicle'"></div>
+          <div class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mt-1" x-text="'Ref ' + activeBooking.id + ' · ' + dateStr(activeBooking) + ' · ' + (activeBooking.days || 0) + ' day(s)'"></div>
+        </div>
+        <span class="font-label-mono text-[10px] uppercase px-3 py-1 border chamfer-clip-sm" :class="style(activeBooking.status).cls" x-text="style(activeBooking.status).label"></span>
+      </div>
+      <div class="flex flex-wrap items-center gap-5 mt-5">
+        <a x-show="activeBooking.status === 'ongoing'" :href="'tracking.html?vehicleId=' + encodeURIComponent(activeBooking.vehicleId || '')" class="px-5 py-2 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm hover:brightness-110 transition-all">Track Vehicle</a>
+        <a x-show="showReceipt(activeBooking)" :href="'receipt.html?bookingId=' + encodeURIComponent(activeBooking.id)" class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-sm">receipt_long</span> View Receipt</a>
+        <a href="bookings.html" class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase hover:text-primary transition-colors">Full Details</a>
+      </div>
+    </div>
+  </template>
+</div>
+</section>
+
+<!-- Recent activity -->
+<section class="relative z-10 mb-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-label-mono text-[11px] text-primary uppercase tracking-widest">Recent Activity</h2>
+<a href="bookings.html" class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<div class="space-y-4">
+  <template x-for="b in recentBookings" :key="b.id">
+    <div class="bg-surface-container-low border border-outline-variant chamfer p-5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="font-label-mono text-sm uppercase text-on-surface" x-text="b.vehicleName || b.vehicleId || 'Vehicle'"></div>
+        <div class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mt-1" x-text="'Ref ' + b.id + ' · ' + dateStr(b)"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="font-label-mono text-[10px] uppercase px-3 py-1 border chamfer-clip-sm" :class="style(b.status).cls" x-text="style(b.status).label"></span>
+        <a x-show="showReceipt(b)" :href="'receipt.html?bookingId=' + encodeURIComponent(b.id)" class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-sm">receipt_long</span> Receipt</a>
+      </div>
+    </div>
+  </template>
+</div>
+<div class="text-center py-16 border border-dashed border-outline-variant chamfer" x-show="loaded && bookings.length === 0">
+<span class="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-4">directions_car</span>
+<p class="font-label-mono text-label-mono text-on-surface-variant/50 uppercase mb-6">You haven't booked a ride yet</p>
+<a href="fleet.html" class="inline-block px-8 py-3 bg-primary-container text-on-primary-container font-label-mono text-label-mono uppercase font-bold chamfer-clip-sm hover:brightness-110 transition-all">Browse the Fleet</a>
+</div>
+</section>
+
+<!-- Quick actions -->
+<section class="relative z-10">
+<h2 class="font-label-mono text-[11px] text-primary uppercase tracking-widest mb-4">Quick Actions</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<a href="fleet.html" class="bg-surface-container-low border border-outline-variant chamfer p-5 flex flex-col items-center gap-2 text-center hover:border-primary transition-colors group">
+<span class="material-symbols-outlined text-2xl text-primary group-hover:scale-110 transition-transform">directions_car</span>
+<span class="font-label-mono text-[10px] uppercase text-on-surface-variant">Browse Fleet</span>
+</a>
+<a href="tracking.html" class="bg-surface-container-low border border-outline-variant chamfer p-5 flex flex-col items-center gap-2 text-center hover:border-primary transition-colors group">
+<span class="material-symbols-outlined text-2xl text-primary group-hover:scale-110 transition-transform">explore</span>
+<span class="font-label-mono text-[10px] uppercase text-on-surface-variant">Track Vehicle</span>
+</a>
+<a href="recommend.html" class="bg-surface-container-low border border-outline-variant chamfer p-5 flex flex-col items-center gap-2 text-center hover:border-primary transition-colors group">
+<span class="material-symbols-outlined text-2xl text-primary group-hover:scale-110 transition-transform">psychology</span>
+<span class="font-label-mono text-[10px] uppercase text-on-surface-variant">AI Match</span>
+</a>
+<a href="support.html" class="bg-surface-container-low border border-outline-variant chamfer p-5 flex flex-col items-center gap-2 text-center hover:border-primary transition-colors group">
+<span class="material-symbols-outlined text-2xl text-primary group-hover:scale-110 transition-transform">support_agent</span>
+<span class="font-label-mono text-[10px] uppercase text-on-surface-variant">Support</span>
+</a>
+</div>
+</section>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+<script>
+  const STATUS_STYLE = {
+    pending:   { label: 'Pending Approval',  cls: 'text-secondary border-secondary/40' },
+    approved:  { label: 'Approved',          cls: 'text-secondary border-secondary/40' },
+    waitlist:  { label: 'Waitlisted — vehicle in use', cls: 'text-secondary border-secondary/40' },
+    ongoing:   { label: 'Ongoing',           cls: 'text-primary border-primary/40' },
+    completed: { label: 'Completed',         cls: 'text-on-surface-variant border-outline-variant' },
+    rejected:  { label: 'Rejected',          cls: 'text-error border-error/40' },
+    cancelled: { label: 'Cancelled',         cls: 'text-error border-error/40' }
+  };
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function doLogout() {
+    WRG.api.logout().then(() => {
+      WRG.toast('Logged out');
+      setTimeout(() => window.location.href = 'login.html', 600);
+    });
+  }
+
+  // ── Alpine component: stats, verification banner, active-booking
+  // spotlight, and recent activity list. Replaces renderStats() /
+  // renderVerificationBanner() / renderActive() / renderRecent(). ─────────
+  function dashboardPage() {
+    return {
+      bookings: [],
+      verification: null,
+      loaded: false,
+      get total() { return this.bookings.length; },
+      get active() { return this.bookings.filter(b => ['pending', 'approved', 'waitlist', 'ongoing'].includes(b.status)).length; },
+      get completed() { return this.bookings.filter(b => b.status === 'completed').length; },
+      get vStatus() { return this.verification ? this.verification.status : null; },
+      get vLabel() {
+        const map = { approved: 'Verified', pending: 'Under Review', rejected: 'Rejected' };
+        return this.vStatus ? (map[this.vStatus] || this.vStatus) : 'Not Started';
+      },
+      get vColorClass() {
+        const map = { approved: 'text-secondary', pending: 'text-primary', rejected: 'text-error' };
+        return this.vStatus ? (map[this.vStatus] || 'text-on-surface-variant') : 'text-on-surface-variant/60';
+      },
+      get activeBooking() {
+        // Prefer the most relevant single booking to spotlight: ongoing first,
+        // then approved, then waitlist, then pending.
+        const priority = ['ongoing', 'approved', 'waitlist', 'pending'];
+        for (const status of priority) {
+          const b = this.bookings.find(x => x.status === status);
+          if (b) return b;
+        }
+        return null;
+      },
+      get recentBookings() { return this.bookings.slice(0, 4); },
+      style(status) { return STATUS_STYLE[status] || { label: status || 'Unknown', cls: 'text-on-surface-variant border-outline-variant' }; },
+      dateStr(b) { return b.reservationDate ? new Date(b.reservationDate).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'; },
+      showReceipt(b) { return ['ongoing', 'completed'].includes(b.status); },
+      pushEnabled: false,
+      pushBusy: false,
+      async togglePush() {
+        this.pushBusy = true;
+        try {
+          if (this.pushEnabled) {
+            await WRG.api.disablePushNotifications();
+            this.pushEnabled = false;
+            WRG.toast('Push notifications turned off');
+          } else {
+            await WRG.api.enablePushNotifications();
+            this.pushEnabled = true;
+            WRG.toast('Push notifications enabled — you\'ll get alerts even when the site is closed');
+          }
+        } catch (err) {
+          WRG.toast(err.message || 'Could not update notification settings');
+        } finally {
+          this.pushBusy = false;
+        }
+      },
+      async load() {
+        const session = await WRG.api.requireAuth();
+        if (!session) return;
+        document.getElementById('sidebar-name').textContent = session.name || 'Rider';
+        document.getElementById('greet-name').textContent = (session.name || 'Rider').split(' ')[0];
+        WRG.api.isPushEnabled().then(v => { this.pushEnabled = v; });
+        try {
+          const [bookings, verification] = await Promise.all([WRG.api.getMyBookings(), WRG.api.getMyVerification()]);
+          this.bookings = bookings;
+          this.verification = verification;
+        } catch (err) {
+          WRG.toast(err.message || 'Could not load your dashboard');
+        } finally {
+          this.loaded = true;
+        }
+      }
+    };
+  }
+</script>
+</body></html>

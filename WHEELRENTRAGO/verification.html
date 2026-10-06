@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <title>WheelRentraGo | Renter Verification</title>
+  <link href="style.build.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0b0b0b;
+      color: #e5e2e1;
+      overflow-x: hidden;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .chamfer-sm {
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+
+    .chamfer-md {
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+
+    .scan-line {
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 238, 252, 0.04) 50%);
+      background-size: 100% 4px;
+    }
+
+    .upload-slot {
+      border: 1px dashed #603e39;
+      transition: all .15s;
+      cursor: pointer;
+    }
+
+    .upload-slot:hover,
+    .upload-slot.has-file {
+      border-color: #ff5540;
+      background: rgba(255, 85, 64, .05);
+    }
+
+    .upload-slot.has-file {
+      border-style: solid;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0b0b0b
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff5540
+    }
+
+    .badge-pending {
+      background: rgba(255, 180, 168, .1);
+      color: #ffb4a8;
+      border: 1px solid rgba(255, 180, 168, .3);
+    }
+
+    .badge-approved {
+      background: rgba(61, 220, 132, .12);
+      color: #3ddc84;
+      border: 1px solid rgba(61, 220, 132, .3);
+    }
+
+    .badge-rejected {
+      background: rgba(255, 85, 64, .12);
+      color: #ff5540;
+      border: 1px solid rgba(255, 85, 64, .4);
+    }
+  </style>
+</head>
+
+<body class="font-body-md min-h-screen" x-data>
+
+  <div class="fixed inset-0 scan-line opacity-20 pointer-events-none z-0"></div>
+
+  <nav
+    class="fixed top-0 w-full z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.3)]">
+    <div class="flex justify-between items-center px-6 md:px-margin-desktop py-4">
+      <a href="index.html"
+        class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter">WheelRentraGo</a>
+      <div class="hidden md:flex space-x-8">
+        <a href="fleet.html"
+          class="text-on-background opacity-70 hover:opacity-100 font-label-mono text-label-mono uppercase hover:text-primary transition-colors">Catalog</a>
+        <a href="account.html"
+          class="text-on-background opacity-70 hover:opacity-100 font-label-mono text-label-mono uppercase hover:text-primary transition-colors">Account</a>
+      </div>
+      <button onclick="document.getElementById('mobile-menu-panel').classList.toggle('hidden')"
+        class="md:hidden flex items-center justify-center w-9 h-9 text-primary">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+    <div id="mobile-menu-panel" class="hidden md:hidden bg-surface-container-low border-t border-outline-variant">
+      <div class="flex flex-col px-6 py-2">
+        <a href="fleet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Catalog</a>
+        <a href="account.html" class="py-3 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Account</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-28 pb-20 px-4 max-w-3xl mx-auto relative z-10">
+
+    <div class="mb-8 border-l-4 border-primary pl-6">
+      <div class="inline-flex items-center gap-2 bg-error-container/20 border border-error/40 px-3 py-1 mb-3">
+        <span class="material-symbols-outlined text-error text-sm">verified_user</span>
+        <span class="font-label-mono text-[10px] text-error uppercase tracking-widest">Required Before Booking</span>
+      </div>
+      <h1 class="font-display-lg text-4xl uppercase italic font-black">Renter <span
+          class="text-primary">Verification</span></h1>
+      <p class="font-label-mono text-xs text-on-surface-variant uppercase tracking-widest opacity-80 mt-2">Identity
+        &amp; background screening for theft and fraud prevention</p>
+    </div>
+
+    <!-- Status banner (shown after fetch) -->
+    <div x-show="$store.verification.v" class="mb-8 p-5 chamfer-sm border"
+      :class="{'badge-approved': $store.verification.v?.status === 'approved', 'badge-pending': $store.verification.v?.status === 'pending', 'badge-rejected': $store.verification.v?.status === 'rejected'}">
+      <template x-if="$store.verification.v?.status === 'approved'">
+        <div>
+          <div class="font-label-mono text-xs uppercase font-bold">✓ Verified — You're cleared to book vehicles.</div>
+          <div class="font-label-mono text-[10px] mt-1 opacity-70"
+            x-text="'Approved ' + ($store.verification.v.reviewedAt ? new Date($store.verification.v.reviewedAt).toLocaleDateString('en-PH') : '')">
+          </div>
+          <div class="flex flex-wrap gap-3 mt-4">
+            <a href="fleet.html"
+              class="inline-flex items-center gap-2 px-5 py-3 bg-primary-container text-on-primary-container font-label-mono text-xs uppercase font-bold tracking-widest chamfer-sm hover:brightness-110 active:scale-95 transition-all"><span
+                class="material-symbols-outlined text-base">directions_car</span> Continue to Fleet →</a>
+            <a href="account.html"
+              class="inline-flex items-center gap-2 px-5 py-3 border border-primary text-primary font-label-mono text-xs uppercase font-bold tracking-widest chamfer-sm hover:bg-primary/10 active:scale-95 transition-all"><span
+                class="material-symbols-outlined text-base">account_circle</span> Go to Account →</a>
+          </div>
+        </div>
+      </template>
+      <template x-if="$store.verification.v?.status === 'pending'">
+        <div>
+          <div class="font-label-mono text-xs uppercase font-bold">⏳ Submitted — Awaiting admin review.</div>
+          <div class="font-label-mono text-[10px] mt-1 opacity-70"
+            x-text="'Submitted ' + new Date($store.verification.v.submittedAt).toLocaleString('en-PH')"></div>
+          <div class="font-label-mono text-[10px] mt-1 opacity-70" x-show="typeof $store.verification.v.score === 'number'"
+            x-text="'AI Decision Tree score: ' + $store.verification.v.score + '/100 — ' + ($store.verification.v.riskFlag ? 'FLAGGED for closer review' : ($store.verification.v.gateVerdict || 'READY_FOR_REVIEW').replace(/_/g, ' '))">
+          </div>
+        </div>
+      </template>
+      <template x-if="$store.verification.v?.status === 'rejected'">
+        <div class="font-label-mono text-xs uppercase font-bold"
+          x-text="'✕ Rejected — ' + ($store.verification.v.reviewNote || 'Please resubmit with clearer documents.')"></div>
+      </template>
+    </div>
+
+    <form id="verification-form" class="space-y-8">
+
+      <!-- Date of birth (Age node input) -->
+      <section class="bg-surface-container-low border border-outline-variant chamfer-md p-6">
+        <div class="font-label-mono text-xs text-primary uppercase font-bold mb-1">Step 1 — Date of Birth</div>
+        <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mb-4">Minimum age for self-drive
+          rental is 21 years old.</p>
+        <input type="date" id="birthdate-input"
+          class="w-full bg-black/40 border border-outline-variant/40 chamfer-sm px-4 py-3 font-label-mono text-sm text-on-background focus:border-primary focus:outline-none" />
+      </section>
+
+      <!-- Document uploads -->
+      <section class="bg-surface-container-low border border-outline-variant chamfer-md p-6">
+        <div class="font-label-mono text-xs text-primary uppercase font-bold mb-1">Step 2 — Identity Documents</div>
+        <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mb-5">Upload clear photos or scans.
+          Accepted: JPG, PNG.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="upload-slot chamfer-sm p-5 flex flex-col items-center text-center gap-2" data-slot="govId">
+            <span class="material-symbols-outlined text-2xl text-secondary">badge</span>
+            <span class="font-label-mono text-xs uppercase font-bold">Government-Issued ID</span>
+            <span class="font-label-mono text-[9px] text-on-surface-variant/50 slot-status">No file selected</span>
+            <input type="file" accept="image/*" class="hidden" data-slot="govId" />
+          </label>
+          <label class="upload-slot chamfer-sm p-5 flex flex-col items-center text-center gap-2" data-slot="license">
+            <span class="material-symbols-outlined text-2xl text-secondary">directions_car</span>
+            <span class="font-label-mono text-xs uppercase font-bold">Driver's License (Long-Term)</span>
+            <span class="font-label-mono text-[9px] text-on-surface-variant/50 slot-status">No file selected</span>
+            <input type="file" accept="image/*" class="hidden" data-slot="license" />
+          </label>
+          <label class="upload-slot chamfer-sm p-5 flex flex-col items-center text-center gap-2" data-slot="residency">
+            <span class="material-symbols-outlined text-2xl text-secondary">home</span>
+            <span class="font-label-mono text-xs uppercase font-bold">Proof of Residency</span>
+            <span class="font-label-mono text-[9px] text-on-surface-variant/50 slot-status">No file selected</span>
+            <input type="file" accept="image/*" class="hidden" data-slot="residency" />
+          </label>
+          <label class="upload-slot chamfer-sm p-5 flex flex-col items-center text-center gap-2" data-slot="clearance">
+            <span class="material-symbols-outlined text-2xl text-secondary">gavel</span>
+            <span class="font-label-mono text-xs uppercase font-bold">Police / NBI Clearance</span>
+            <span class="font-label-mono text-[9px] text-on-surface-variant/50 slot-status">No file selected</span>
+            <input type="file" accept="image/*" class="hidden" data-slot="clearance" />
+          </label>
+        </div>
+        <div id="upload-error" class="hidden mt-4 font-label-mono text-[10px] text-error uppercase"></div>
+      </section>
+
+      <!-- Rental agreement -->
+      <section class="bg-surface-container-low border border-outline-variant chamfer-md p-6">
+        <div class="font-label-mono text-xs text-primary uppercase font-bold mb-3">Step 3 — Digital Rental Agreement
+        </div>
+        <div
+          class="bg-black/40 border border-outline-variant/40 p-4 max-h-40 overflow-y-auto font-label-mono text-[10px] text-on-surface-variant leading-relaxed mb-4">
+          By accepting, the renter agrees to: (1) use the vehicle only for lawful purposes and assume full liability for
+          any illegal use, traffic violation, or damage incurred during the rental period; (2) permit GPS monitoring of
+          the vehicle for the duration of the rental; (3) authorize a security deposit hold as a financial deterrent
+          against misuse; (4) return the vehicle on time in the condition received, subject to fuel and mileage
+          inspection; and (5) accept that WheelRentraGo may report suspected theft or criminal use to relevant
+          authorities and remotely immobilize the vehicle if such activity is detected.
+        </div>
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" id="agreement-check" class="mt-1 accent-primary-container w-4 h-4" />
+          <span class="font-label-mono text-xs text-on-surface-variant">I have read and agree to the Digital Rental
+            Agreement and Liability Terms above.</span>
+        </label>
+      </section>
+
+      <!-- Security deposit -->
+      <section class="bg-surface-container-low border border-outline-variant chamfer-md p-6">
+        <div class="font-label-mono text-xs text-primary uppercase font-bold mb-3">Step 4 — Security Deposit Hold</div>
+        <div class="flex items-center justify-between bg-black/40 border border-outline-variant/40 p-4">
+          <div>
+            <div class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Deposit to be authorized on
+              your card</div>
+            <div class="font-display-lg text-2xl text-primary">₱5,000.00</div>
+          </div>
+          <span class="material-symbols-outlined text-3xl text-secondary">credit_card</span>
+        </div>
+        <p class="font-label-mono text-[9px] text-on-surface-variant/50 mt-3 uppercase">Hold is authorized (not charged)
+          upon approval, and released after vehicle return with no damage or violations.</p>
+      </section>
+
+      <!-- Decision gate panel — live view of the same rule-based check that runs server-side -->
+      <section class="bg-surface-container-low border border-outline-variant chamfer-md p-6">
+        <div class="font-label-mono text-xs text-primary uppercase font-bold mb-1">Submission Gate</div>
+        <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mb-4">Automated pre-check before your
+          submission reaches an admin</p>
+        <div id="gate-path" class="space-y-2 font-label-mono text-[11px]"></div>
+      </section>
+
+      <div id="submit-error" class="hidden font-label-mono text-xs text-error uppercase"></div>
+
+      <button type="submit" id="submit-btn"
+        class="w-full py-4 bg-primary-container text-on-primary-container font-display-lg text-sm uppercase font-black tracking-widest hover:brightness-110 active:scale-95 transition-all chamfer-sm flex items-center justify-center gap-3">
+        <span class="material-symbols-outlined">upload</span> Submit for Review
+      </button>
+    </form>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+  <script>
+    // Alpine store: verification status banner (approved/pending/rejected) —
+    // replaces the manual className + innerHTML branching in renderStatus().
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('verification', { v: null });
+    });
+
+    const files = { govId: null, license: null, residency: null, clearance: null };
+    let currentSession = null;
+    // Risk Signal node input — fetched once on load (soft gate, doesn't
+    // block anything by itself, see evaluateVerificationGate in app.js).
+    let riskProfile = { cancelledCount: 0, lateReturnCount: 0, incidents: 0, flagged: false };
+
+    WRG.api.requireAuth().then(session => {
+      currentSession = session;
+      return Promise.all([WRG.api.getMyVerification(), WRG.api.getRenterRiskProfile()]);
+    }).then(([existing, risk]) => {
+      riskProfile = risk;
+      if (existing) renderStatus(existing);
+      renderGate();
+    });
+
+    // ── XSS guard: escape any DB-sourced string before it goes into
+    // innerHTML template literals (admin review notes, etc.) ────────
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function renderStatus(v) {
+      Alpine.store('verification').v = v;
+      if (v.status === 'approved' || v.status === 'pending') {
+        document.getElementById('verification-form').classList.add('hidden');
+      }
+    }
+
+    // Resize + compress an image file client-side to a small base64 thumbnail
+    // (keeps localStorage / row payloads well under size limits).
+    function fileToCompressedBase64(file, maxDim = 700, quality = 0.6) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.onload = () => {
+            const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function currentGateInput() {
+      return {
+        birthdate: document.getElementById('birthdate-input').value || null,
+        govId: files.govId, license: files.license, residency: files.residency, clearance: files.clearance,
+        agreementAccepted: document.getElementById('agreement-check').checked,
+        depositAmount: 5000,
+        risk: riskProfile
+      };
+    }
+
+    function renderGate() {
+      const gate = WRG.api.evaluateVerificationGate(currentGateInput());
+      const ok = gate.verdict !== 'INCOMPLETE';
+      const verdictColor = gate.verdict === 'FLAGGED' ? 'text-primary' : (ok ? 'text-secondary' : 'text-error');
+      document.getElementById('gate-path').innerHTML = gate.path.map((step, i) => {
+        const failed = (gate.blockedAt && (step.result.startsWith('MISSING') || step.result.startsWith('FAILED'))) || step.result.startsWith('NOT ACCEPTED');
+        const flagged = step.result.startsWith('FLAGGED');
+        return `
+        <div class="flex items-start gap-3 border border-outline-variant/30 chamfer-sm p-3 ${failed ? 'border-error/50' : flagged ? 'border-primary/50' : ''}">
+          <div class="w-5 h-5 flex items-center justify-center text-[9px] font-bold shrink-0 ${failed ? 'text-error border border-error' : flagged ? 'text-primary border border-primary' : 'text-secondary border border-secondary'}">${i + 1}</div>
+          <div>
+            <div class="text-on-surface-variant/60 uppercase tracking-widest text-[9px]">${step.node}</div>
+            <div class="${failed ? 'text-error' : flagged ? 'text-primary' : 'text-on-background'} mt-0.5">${step.test} → ${step.result}</div>
+          </div>
+        </div>`;
+      }).join('') + `
+        <div class="font-bold uppercase text-[10px] mt-2 ${verdictColor}">Gate verdict: ${gate.verdict.replace(/_/g, ' ')} — Score: ${gate.score}/100</div>`;
+      return gate;
+    }
+
+    document.getElementById('agreement-check').addEventListener('change', renderGate);
+    document.getElementById('birthdate-input').addEventListener('change', renderGate);
+    renderGate();
+
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+      input.addEventListener('change', async (e) => {
+        const slot = input.dataset.slot;
+        const file = e.target.files[0];
+        if (!file) return;
+        const label = document.querySelector(`.upload-slot[data-slot="${slot}"]`);
+        const statusEl = label.querySelector('.slot-status');
+        statusEl.textContent = 'Processing…';
+        try {
+          const compressed = await fileToCompressedBase64(file);
+          files[slot] = compressed;
+          label.classList.add('has-file');
+          statusEl.textContent = '✓ ' + file.name;
+          renderGate();
+        } catch (err) {
+          statusEl.textContent = 'Failed to read file — try again';
+        }
+      });
+    });
+
+    document.getElementById('verification-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('submit-error');
+      errEl.classList.add('hidden');
+      const gate = renderGate();
+      if (gate.verdict === 'INCOMPLETE') {
+        errEl.textContent = 'Submission blocked at: ' + gate.blockedAt + ' — see Submission Gate above.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+      WRG.api.submitVerification({
+        birthdate: document.getElementById('birthdate-input').value || null,
+        govId: files.govId, license: files.license, residency: files.residency, clearance: files.clearance,
+        agreementAccepted: true, depositAmount: 5000
+      }).then(saved => {
+        WRG.toast('Verification submitted — pending admin review');
+        renderStatus(saved);
+      }).catch(err => {
+        errEl.textContent = err.message || 'Submission failed.';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">upload</span> Submit for Review';
+      });
+    });
+  </script>
+</body>
+
+</html>

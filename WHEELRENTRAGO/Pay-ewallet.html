@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<title>WheelRentraGo | Pay via E-Wallet</title>
+<link href="style.build.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  body { background-color:#0b0b0b; color:#e5e2e1; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .chamfer-sm { clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); }
+  .qr-frame { image-rendering: pixelated; }
+</style>
+</head>
+<body class="font-body-md min-h-screen flex items-center justify-center p-6">
+
+<div class="w-full max-w-sm">
+
+  <div class="text-center mb-6">
+    <div class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter">WheelRentraGo</div>
+    <div class="font-label-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Secure E-Wallet Payment</div>
+  </div>
+
+  <div id="pay-card" class="bg-surface-container-low border border-outline-variant chamfer-sm p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div id="provider-badge" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm">?</div>
+      <div>
+        <div id="provider-name" class="font-label-mono text-sm uppercase font-bold">—</div>
+        <div class="font-label-mono text-[9px] text-on-surface-variant">Scan with your app to pay</div>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 mx-auto w-fit mb-6">
+      <canvas id="qr-canvas" width="220" height="220" class="qr-frame"></canvas>
+    </div>
+
+    <div class="space-y-3 mb-6">
+      <div class="flex justify-between font-label-mono text-xs">
+        <span class="text-on-surface-variant uppercase">Vehicle</span>
+        <span id="row-vehicle" class="text-on-background">—</span>
+      </div>
+      <div class="flex justify-between font-label-mono text-xs">
+        <span class="text-on-surface-variant uppercase">Reference</span>
+        <span id="row-ref" class="text-secondary">—</span>
+      </div>
+      <div class="flex justify-between items-center border-t border-outline-variant pt-3">
+        <span class="font-label-mono text-xs text-on-surface-variant uppercase">Amount Due</span>
+        <span id="row-amount" class="font-display-lg text-2xl text-primary">₱0</span>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center gap-2 mb-6 font-label-mono text-[10px] text-on-surface-variant uppercase">
+      <span class="material-symbols-outlined text-sm">schedule</span>
+      <span>Expires in <span id="countdown" class="text-primary">05:00</span></span>
+    </div>
+
+    <button id="confirm-btn" onclick="confirmPayment()" class="w-full py-4 bg-primary-container text-on-primary-container font-label-mono text-xs uppercase font-bold chamfer-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-base">check_circle</span> I've Completed Payment
+    </button>
+    <p class="font-label-mono text-[9px] text-on-surface-variant/40 uppercase text-center mt-3">Demo mode — click above to simulate a completed scan-to-pay</p>
+    <button onclick="cancelPayment()" class="w-full py-2 mt-2 font-label-mono text-[10px] text-on-surface-variant/50 uppercase hover:text-error transition-colors">Cancel Payment</button>
+  </div>
+
+  <div id="success-card" class="hidden bg-surface-container-low border border-secondary chamfer-sm p-10 text-center">
+    <span class="material-symbols-outlined text-secondary text-5xl mb-4">verified</span>
+    <div class="font-headline-lg text-headline-lg text-secondary uppercase mb-2">Payment Received</div>
+    <p class="font-label-mono text-xs text-on-surface-variant mb-6">You can close this tab and return to WheelRentraGo — your reservation is being submitted.</p>
+    <button onclick="window.close()" class="px-8 py-3 border border-secondary text-secondary font-label-mono text-xs uppercase chamfer-sm hover:bg-secondary hover:text-black transition-all">Close Tab</button>
+  </div>
+
+  <div id="failed-card" class="hidden bg-surface-container-low border border-error chamfer-sm p-10 text-center">
+    <span class="material-symbols-outlined text-error text-5xl mb-4">error</span>
+    <div class="font-headline-lg text-headline-lg text-error uppercase mb-2">Payment Failed</div>
+    <p id="failed-message" class="font-label-mono text-xs text-on-surface-variant mb-6">Your payment could not be completed. No amount was deducted.</p>
+    <button onclick="window.close()" class="px-8 py-3 border border-error text-error font-label-mono text-xs uppercase chamfer-sm hover:bg-error hover:text-black transition-all">Close Tab</button>
+  </div>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const provider = params.get('provider') || 'gcash';
+  const amount = params.get('amount') || '0';
+  const ref = params.get('ref') || 'WRG-REF-000000';
+  const vehicleName = params.get('vehicle') || '—';
+
+  const PROVIDERS = {
+    gcash: { name: 'GCash', color: '#0072ce', letter: 'G' },
+    maya:  { name: 'Maya',  color: '#00c86e', letter: 'M' }
+  };
+  const p = PROVIDERS[provider] || PROVIDERS.gcash;
+  document.getElementById('provider-badge').style.background = p.color;
+  document.getElementById('provider-badge').textContent = p.letter;
+  document.getElementById('provider-name').textContent = p.name;
+  document.getElementById('row-vehicle').textContent = vehicleName;
+  document.getElementById('row-ref').textContent = ref;
+  document.getElementById('row-amount').textContent = '₱' + Number(amount).toLocaleString('en-PH');
+  document.title = 'Pay ' + p.name + ' — WheelRentraGo';
+
+  // Draw a plausible-looking (non-functional) QR pattern — deterministic
+  // from the reference code so it looks stable, not random noise per repaint.
+  function drawFakeQr() {
+    const canvas = document.getElementById('qr-canvas');
+    const ctx = canvas.getContext('2d');
+    const size = 22, cell = canvas.width / size;
+    let seed = 0;
+    for (let i = 0; i < ref.length; i++) seed = (seed * 31 + ref.charCodeAt(i)) % 100000;
+    function rand() { seed = (seed * 1103515245 + 12345) % 2147483648; return (seed / 2147483648); }
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#000';
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const inFinder = (x < 6 && y < 6) || (x > size - 7 && y < 6) || (x < 6 && y > size - 7);
+        if (inFinder) continue;
+        if (rand() > 0.55) ctx.fillRect(x * cell, y * cell, cell, cell);
+      }
+    }
+    // Finder patterns (top-left, top-right, bottom-left)
+    [[0,0],[size-7,0],[0,size-7]].forEach(([fx, fy]) => {
+      ctx.fillStyle = '#000'; ctx.fillRect(fx*cell, fy*cell, 7*cell, 7*cell);
+      ctx.fillStyle = '#fff'; ctx.fillRect((fx+1)*cell, (fy+1)*cell, 5*cell, 5*cell);
+      ctx.fillStyle = '#000'; ctx.fillRect((fx+2)*cell, (fy+2)*cell, 3*cell, 3*cell);
+    });
+  }
+  drawFakeQr();
+
+  // Countdown timer
+  let remaining = 300;
+  const countdownEl = document.getElementById('countdown');
+  const timer = setInterval(() => {
+    remaining--;
+    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const s = String(remaining % 60).padStart(2, '0');
+    countdownEl.textContent = m + ':' + s;
+    if (remaining <= 0) {
+      clearInterval(timer);
+      failPayment('qr_expired');
+    }
+  }, 1000);
+
+  function confirmPayment() {
+    clearInterval(timer);
+    document.getElementById('pay-card').classList.add('hidden');
+    document.getElementById('success-card').classList.remove('hidden');
+    if (window.opener) {
+      window.opener.postMessage({
+        type: 'wrg-payment-success',
+        ref,
+        paymentMethod: p.name,   // "GCash" or "Maya"
+        amount
+      }, '*');
+    }
+    setTimeout(() => { try { window.close(); } catch (e) {} }, 2500);
+  }
+
+  function failPayment(reason) {
+    clearInterval(timer);
+    document.getElementById('pay-card').classList.add('hidden');
+    const messages = {
+      qr_expired: 'This QR code has expired — the 5-minute payment window ran out. Please start a new booking to try again.',
+      insufficient_funds: 'Your payment could not be completed — insufficient balance. No amount was deducted.'
+    };
+    document.getElementById('failed-message').textContent = messages[reason] || 'Your payment could not be completed. No amount was deducted.';
+    document.getElementById('failed-card').classList.remove('hidden');
+    if (window.opener) {
+      window.opener.postMessage({
+        type: 'wrg-payment-failed',
+        ref,
+        paymentMethod: p.name,
+        amount,
+        reason
+      }, '*');
+    }
+  }
+
+  function cancelPayment() {
+    if (window.opener) {
+      window.opener.postMessage({ type: 'wrg-payment-cancelled', ref, paymentMethod: p.name }, '*');
+    }
+    window.close();
+  }
+</script>
+</body></html>

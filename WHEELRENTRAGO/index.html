@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ff5540" />
+    <link rel="icon" href="icons/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <title>WheelRentraGo | Elite Velocity Rentals</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@300;400;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="style.build.css" rel="stylesheet" />
+</head>
+
+<body class="font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container" x-data="homePage()" x-init="load()">
+
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-0 w-full z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.3)]">
+        <div class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+            <a href="index.html"
+                class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter cursor-pointer">WheelRentraGo</a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a class="nav-active pb-1 font-label-mono text-label-mono" href="fleet.html">Catalog</a>
+                <a class="text-on-background opacity-70 hover:opacity-100 transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono"
+                    href="tracking.html">Tracking</a>
+                <a class="text-on-background opacity-70 hover:opacity-100 transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono"
+                    href="wallet.html">Checkout</a>
+                <a class="text-on-background opacity-70 hover:opacity-100 transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono"
+                    href="account.html">Account</a>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="flex space-x-4">
+                    <span
+                        class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">smart_toy</span>
+                    <span
+                        class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">notifications</span>
+                </div>
+                <a href="fleet.html"
+                    class="rog-btn-primary bg-primary-container text-on-primary-container px-6 py-2 font-bold uppercase tracking-widest text-sm active:scale-95 duration-100 inline-block">Rent
+                    Now</a>
+                <button onclick="document.getElementById('mobile-menu-panel').classList.toggle('hidden')"
+                    class="md:hidden flex items-center justify-center w-9 h-9 text-primary">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu-panel" class="hidden md:hidden bg-surface-container-low border-t border-outline-variant">
+            <div class="flex flex-col px-6 py-2">
+                <a href="fleet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-primary uppercase">Catalog</a>
+                <a href="tracking.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Tracking</a>
+                <a href="wallet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Checkout</a>
+                <a href="account.html" class="py-3 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SideNavBar (Desktop) -->
+    <aside
+        class="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container-low border-r border-outline-variant shadow-lg flex-col py-24 space-y-6 hidden lg:flex">
+        <div class="px-6 mb-8">
+            <div class="flex items-center space-x-4 p-3 bg-surface-variant/30 rounded-lg">
+                <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">person</span>
+                </div>
+                <div>
+                    <p class="font-label-mono text-xs uppercase text-primary" id="sidebar-rider">Guest</p>
+                    <p class="font-label-mono text-[10px] text-on-surface-variant" id="sidebar-status">Not signed in</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a class="flex items-center space-x-4 bg-secondary-container text-on-secondary-container rounded-r-full mr-4 p-3 translate-x-1"
+                href="index.html">
+                <span class="material-symbols-outlined">home</span><span
+                    class="font-label-mono text-label-mono uppercase">Home</span>
+            </a>
+            <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-all duration-200 p-3 group"
+                href="fleet.html">
+                <span
+                    class="material-symbols-outlined group-hover:translate-x-1 transition-transform">directions_car</span><span
+                    class="font-label-mono text-label-mono uppercase">Garage</span>
+            </a>
+            <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-all duration-200 p-3 group"
+                href="tracking.html">
+                <span
+                    class="material-symbols-outlined group-hover:translate-x-1 transition-transform">explore</span><span
+                    class="font-label-mono text-label-mono uppercase">Maps</span>
+            </a>
+            <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-all duration-200 p-3 group"
+                href="wallet.html">
+                <span
+                    class="material-symbols-outlined group-hover:translate-x-1 transition-transform">account_balance_wallet</span><span
+                    class="font-label-mono text-label-mono uppercase">Wallet</span>
+            </a>
+            <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-all duration-200 p-3 group"
+                href="#" onclick="event.preventDefault(); WRG.toast('AI Helper is coming soon.');">
+                <span
+                    class="material-symbols-outlined group-hover:translate-x-1 transition-transform">psychology</span><span
+                    class="font-label-mono text-label-mono uppercase">AI Helper</span>
+            </a>
+        </nav>
+        <div class="px-4">
+            <a href="tracking.html"
+                class="w-full rog-btn-primary bg-secondary-container text-on-secondary-container py-3 font-bold text-xs flex items-center justify-center space-x-2">
+                <span class="material-symbols-outlined text-sm">qr_code_scanner</span><span>Scan Vehicle</span>
+            </a>
+        </div>
+        <div class="mt-auto space-y-2 pb-8">
+            <div id="sidebar-account-links" class="hidden space-y-2">
+                <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary p-3 px-6"
+                    href="account.html">
+                    <span class="material-symbols-outlined">settings</span><span
+                        class="font-label-mono text-label-mono uppercase">Settings</span>
+                </a>
+                <a class="flex items-center space-x-4 text-on-surface-variant hover:text-secondary p-3 px-6"
+                    href="login.html" onclick="WRG.api.logout()">
+                    <span class="material-symbols-outlined">logout</span><span
+                        class="font-label-mono text-label-mono uppercase">Log Out</span>
+                </a>
+            </div>
+            <a id="sidebar-guest-link" class="hidden items-center space-x-4 text-primary hover:text-secondary p-3 px-6"
+                href="login.html">
+                <span class="material-symbols-outlined">login</span><span
+                    class="font-label-mono text-label-mono uppercase">Log In / Register</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="lg:ml-64 pt-20">
+
+        <!-- Hero -->
+        <section class="relative min-h-[820px] flex items-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <div class="w-full h-full bg-cover bg-center scale-110 opacity-60"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHIem4lyCIw02uy0yhDtCw5EXiuSO4w8hihXgp2hBgFkFk0Vn9FrVTJm_jvHotLVP4YlEykO_TNOCbPlQ1YbUk8ysA0jHoN-vR49Vv3IFPF9hceoWm2si3Rka8GIBjxdxL-N5_BXDiSxQ9Fotct4ZVQP-1oE1mygMJL7WGJQ2aDS1JXi00mTwdlLbqd7u-wbL4zY2WygVpiQ0t7LfAMBaEJRjt-QsXLnlq3i-ER-ZsoqowNw9D3MzMz9TNGS9oqx2b0JTcSVbtuw')">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
+                <div class="absolute inset-0 scan-line opacity-20"></div>
+            </div>
+            <div class="relative z-10 px-6 md:px-margin-desktop max-w-container-max mx-auto w-full">
+                <div class="max-w-2xl space-y-6">
+                    <div
+                        class="inline-flex items-center space-x-2 bg-primary-container/20 border border-primary-container px-3 py-1 mb-4">
+                        <span class="w-2 h-2 bg-primary animate-pulse"></span>
+                        <span
+                            class="font-label-mono text-[10px] text-primary-container uppercase tracking-widest">System
+                            Status: Optimal</span>
+                    </div>
+                    <h1
+                        class="font-display-lg text-[56px] md:text-[80px] leading-none uppercase font-extrabold italic tracking-tighter text-on-background">
+                        Wheel <span class="text-primary-container">Rentra</span> Go
+                    </h1>
+                    <p class="font-body-md text-xl text-on-background/80 leading-relaxed max-w-xl">
+                        Unleash peak performance. Access our fleet of elite, high-spec vehicles managed by real-time
+                        neural validation.
+                    </p>
+
+                    <div class="mt-12 p-6 rog-panel rog-clip backdrop-blur-xl border-secondary/30">
+                        <div class="flex flex-col space-y-4">
+                            <label
+                                class="font-label-mono text-secondary text-xs uppercase tracking-widest flex items-center space-x-2">
+                                <span class="material-symbols-outlined text-sm">psychology</span><span>Neural Query
+                                    Engine</span>
+                            </label>
+                            <div class="relative group">
+                                <input id="ai-query"
+                                    class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-variant focus:border-secondary focus:ring-0 font-label-mono text-on-background py-4 px-4 transition-all duration-300"
+                                    placeholder="Ask AI to find your perfect ride..." type="text" />
+                                <button id="ai-query-btn"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 bg-secondary-container text-on-secondary-container p-2 rounded-sm hover:scale-110 transition-transform">
+                                    <span class="material-symbols-outlined">bolt</span>
+                                </button>
+                            </div>
+                            <div class="flex flex-wrap gap-x-4 text-[10px] font-label-mono text-on-surface-variant/60">
+                                <span>SUGGESTIONS:</span>
+                                <a class="hover:text-primary transition-colors quick-query" data-q="fastest"
+                                    href="#">"Fastest available unit"</a>
+                                <a class="hover:text-primary transition-colors quick-query" data-q="awd"
+                                    href="#">"Track-ready AWD models"</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-12 right-6 md:right-margin-desktop hidden xl:flex flex-col space-y-4">
+                <div class="rog-panel p-4 w-64 border-secondary/20">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="font-label-mono text-[10px] uppercase">Active Fleet</span>
+                        <span class="font-display-lg text-2xl text-secondary">2,481</span>
+                    </div>
+                    <div class="h-1 bg-surface-variant overflow-hidden">
+                        <div class="h-full bg-secondary-container w-3/4 animate-[pulse_2s_infinite]"></div>
+                    </div>
+                </div>
+                <div class="rog-panel p-4 w-64 border-primary/20">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="font-label-mono text-[10px] uppercase">Neural Uplink</span>
+                        <span class="font-display-lg text-2xl text-primary">Stable</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <div class="h-3 w-1 bg-primary"></div>
+                        <div class="h-3 w-1 bg-primary"></div>
+                        <div class="h-3 w-1 bg-primary"></div>
+                        <div class="h-3 w-1 bg-primary opacity-30"></div>
+                        <div class="h-3 w-1 bg-primary opacity-30"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Fleet Bento Grid (dynamic) -->
+        <section class="py-24 px-6 md:px-margin-desktop max-w-container-max mx-auto">
+            <div class="flex flex-wrap justify-between items-end mb-12 gap-4">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg uppercase italic text-primary-container">Featured Fleet
+                    </h2>
+                    <p class="font-label-mono text-sm text-on-surface-variant">SELECT YOUR LOADOUT</p>
+                </div>
+                <div class="h-[1px] flex-1 bg-surface-variant mx-12 mb-4 hidden md:block"></div>
+                <a href="fleet.html"
+                    class="font-label-mono text-xs text-primary border border-primary/40 px-4 py-2 hover:bg-primary/10 transition-colors">VIEW_ALL_UNITS</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+                <template x-for="(v, i) in fleet" :key="v.id">
+                    <a href="fleet.html"
+                        :class="[sizeClasses[i % sizeClasses.length], i === 0 ? 'aspect-video' : '']"
+                        class="group relative overflow-hidden rog-panel cursor-pointer block">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                            :class="i === 0 ? '' : 'h-56'" :style="`background-image: url('${v.img}')`"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-0 left-0 w-full" :class="i === 0 ? 'p-8' : 'p-6'">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <span :class="badgeClasses[i % badgeClasses.length]"
+                                        class="px-2 py-1 text-[10px] font-bold mb-2 inline-block" x-text="v.cls.toUpperCase()"></span>
+                                    <h3 class="font-display-lg uppercase font-bold tracking-tight" :class="i === 0 ? 'text-3xl' : 'text-xl'" x-text="v.name"></h3>
+                                </div>
+                                <div class="text-right" x-show="i === 0">
+                                    <p class="font-label-mono text-xs opacity-60">STARTING AT</p>
+                                    <p class="font-display-lg text-2xl text-secondary"><span x-text="WRG.peso(v.ratePerDay)"></span><span class="text-xs">/DAY</span></p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex space-x-6 border-t border-white/10 pt-4" x-show="i === 0">
+                                <div class="flex items-center space-x-2"><span class="material-symbols-outlined text-primary text-sm">speed</span><span class="font-label-mono text-xs">★ <span x-text="v.rating"></span></span></div>
+                                <div class="flex items-center space-x-2"><span class="material-symbols-outlined text-primary text-sm">battery_charging_full</span><span class="font-label-mono text-xs"><span x-text="v.battery"></span>% CHARGE</span></div>
+                            </div>
+                        </div>
+                    </a>
+                </template>
+            </div>
+        </section>
+
+        <!-- Neural Validation Protocol -->
+        <section class="bg-surface-container-low py-24 border-y border-outline-variant">
+            <div class="px-6 md:px-margin-desktop max-w-container-max mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="font-headline-lg text-headline-lg uppercase italic text-on-background mb-4">Neural
+                        Validation Protocol</h2>
+                    <p class="font-label-mono text-sm text-primary">SECURE. INSTANT. AUTONOMOUS.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                    <div
+                        class="relative group p-8 bg-background border border-surface-variant hover:border-primary transition-all duration-300">
+                        <div class="hud-corner-tl"></div>
+                        <div class="hud-corner-br"></div>
+                        <div class="mb-6"><span class="material-symbols-outlined text-5xl text-primary"
+                                style="font-variation-settings: 'FILL' 1">face_retouch</span></div>
+                        <h4 class="font-display-lg text-xl uppercase mb-3">Biometric Link</h4>
+                        <p class="text-on-surface-variant text-sm leading-relaxed">System performs a 3D depth-map scan
+                            of your facial features to verify identity against the rider/driver registry.</p>
+                        <div
+                            class="mt-6 font-label-mono text-[10px] text-primary/40 group-hover:text-primary transition-colors">
+                            01 // IDENTITY_SCAN</div>
+                    </div>
+                    <div
+                        class="relative group p-8 bg-background border border-surface-variant hover:border-secondary transition-all duration-300">
+                        <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-secondary/20"></div>
+                        <div class="mb-6"><span class="material-symbols-outlined text-5xl text-secondary"
+                                style="font-variation-settings: 'FILL' 1">verified_user</span></div>
+                        <h4 class="font-display-lg text-xl uppercase mb-3">Skill Assessment</h4>
+                        <p class="text-on-surface-variant text-sm leading-relaxed">AI analyzes your driving history and
+                            simulation performance to unlock specific vehicle power tiers.</p>
+                        <div
+                            class="mt-6 font-label-mono text-[10px] text-secondary/40 group-hover:text-secondary transition-colors">
+                            02 // LICENSE_TIER</div>
+                    </div>
+                    <div
+                        class="relative group p-8 bg-background border border-surface-variant hover:border-primary-container transition-all duration-300">
+                        <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-container/20">
+                        </div>
+                        <div class="mb-6"><span class="material-symbols-outlined text-5xl text-primary-container"
+                                style="font-variation-settings: 'FILL' 1">key_visualizer</span></div>
+                        <h4 class="font-display-lg text-xl uppercase mb-3">Neural Handshake</h4>
+                        <p class="text-on-surface-variant text-sm leading-relaxed">Digital keys are encrypted and
+                            transmitted to your mobile device, granting full system access.</p>
+                        <div
+                            class="mt-6 font-label-mono text-[10px] text-primary-container/40 group-hover:text-primary-container transition-colors">
+                            03 // FINAL_UPLINK</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracking Preview -->
+        <section class="py-24 px-6 md:px-margin-desktop max-w-container-max mx-auto overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <h2 class="font-headline-lg text-headline-lg uppercase italic leading-tight">Real-Time<br /><span
+                            class="text-secondary">Tactical Tracking</span></h2>
+                    <p class="font-body-md text-on-surface-variant text-lg">Every WheelRentraGo unit is equipped with
+                        military-grade GPS and telemetry. Monitor your route, performance metrics, and vehicle health in
+                        real-time via the HUD.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-4 rog-panel border-secondary/20">
+                            <div class="w-12 h-12 bg-secondary/10 flex items-center justify-center text-secondary"><span
+                                    class="material-symbols-outlined">satellite_alt</span></div>
+                            <div>
+                                <p class="font-label-mono text-xs uppercase text-secondary">Latency</p>
+                                <p class="font-display-lg text-lg">0.4ms</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-4 rog-panel border-primary/20">
+                            <div class="w-12 h-12 bg-primary/10 flex items-center justify-center text-primary"><span
+                                    class="material-symbols-outlined">analytics</span></div>
+                            <div>
+                                <p class="font-label-mono text-xs uppercase text-primary">Telemetry Points</p>
+                                <p class="font-display-lg text-lg">128/sec</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="tracking.html"
+                        class="inline-block rog-btn-primary bg-primary-container text-on-primary-container px-6 py-3 font-bold uppercase tracking-widest text-sm">Open
+                        Tracking Hub</a>
+                </div>
+                <div class="relative">
+                    <div class="rog-panel p-2 border-secondary/40 aspect-square overflow-hidden rog-clip">
+                        <div
+                            class="w-full h-full bg-surface-container-highest flex items-center justify-center relative">
+                            <div class="w-full h-full bg-cover bg-center grayscale contrast-125 opacity-50"
+                                style="background-image: url('https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg')">
+                            </div>
+                            <div class="absolute inset-0 bg-secondary/5 mix-blend-overlay"></div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32">
+                                <div
+                                    class="absolute inset-0 border-2 border-secondary rounded-full animate-ping opacity-20">
+                                </div>
+                                <div class="absolute inset-0 border border-secondary rounded-full scale-110 opacity-40">
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center"><span
+                                        class="material-symbols-outlined text-secondary text-4xl"
+                                        style="font-variation-settings: 'FILL' 1">navigation</span></div>
+                            </div>
+                            <div
+                                class="absolute top-4 left-4 p-3 bg-background/80 border border-secondary/30 backdrop-blur-md">
+                                <div class="font-label-mono text-[8px] text-secondary uppercase mb-1">Position Tracking
+                                </div>
+                                <div class="font-label-mono text-[10px]">14.676° N, 121.043° E</div>
+                            </div>
+                            <div
+                                class="absolute bottom-4 right-4 p-3 bg-background/80 border border-primary/30 backdrop-blur-md">
+                                <div class="font-label-mono text-[8px] text-primary uppercase mb-1">Velocity Vector
+                                </div>
+                                <div class="font-label-mono text-[10px] text-right">42 KM/H</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Reviews -->
+        <section class="py-24 px-6 md:px-margin-desktop max-w-container-max mx-auto">
+            <div class="flex flex-wrap justify-between items-end mb-12 gap-4">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg uppercase italic text-primary-container">Rider/Driver
+                        Testimonials</h2>
+                    <p class="font-label-mono text-sm text-on-surface-variant">FIELD REPORTS FROM VERIFIED RIDERS/DRIVERS</p>
+                </div>
+                <div class="h-[1px] flex-1 bg-surface-variant mx-12 mb-4 hidden md:block"></div>
+                <div class="flex items-center gap-3 font-label-mono text-xs text-secondary">
+                    <span class="material-symbols-outlined text-lg">star</span><span id="reviews-rating-summary">4.8 / 5
+                        AVG RATING · 2,300+ REVIEWS</span>
+                </div>
+            </div>
+
+            <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-primary transition-all duration-300">
+                    <div class="hud-corner-tl"></div>
+                    <div class="hud-corner-br"></div>
+                    <div class="flex text-primary mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"Picked up the GT3 in BGC on a
+                        Friday night and the whole verification process took minutes. GPS tracking gave me peace of mind
+                        the entire weekend. Returning it was just as painless."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-primary-container/20 border border-primary/30 flex items-center justify-center font-label-mono text-xs text-primary font-bold">
+                            JM</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Josh M.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Makati · Porsche
+                                911 GT3</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-secondary transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-secondary/20"></div>
+                    <div class="flex text-secondary mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star_half</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"Took the Fortuner up to Tagaytay
+                        for a family trip. Booking, deposit hold, and pickup were all handled through the app — no
+                        paperwork hassle at the counter like other rental spots."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center font-label-mono text-xs text-secondary font-bold">
+                            RD</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Riane D.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Quezon City ·
+                                Toyota Fortuner Ltd</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-primary-container transition-all duration-300">
+                    <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-container/20">
+                    </div>
+                    <div class="flex text-primary-container mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"Rented the M4 for a shoot in
+                        Ortigas. Live tracking on the dashboard is a nice touch, and support answered my questions on
+                        chat within a couple of minutes. Will book again."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-primary/10 border border-primary-container/30 flex items-center justify-center font-label-mono text-xs text-primary-container font-bold">
+                            AT</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Anton T.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Ortigas · BMW M4
+                                Competition</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-secondary transition-all duration-300">
+                    <div class="hud-corner-tl"></div>
+                    <div class="hud-corner-br"></div>
+                    <div class="flex text-secondary mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"Drove the Raptor along the NLEX
+                        corridor for a Clark weekend. Vehicle was spotless, tank was full, and the return inspection was
+                        quick since everything was logged in the app already."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/30 flex items-center justify-center font-label-mono text-xs text-secondary font-bold">
+                            KP</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Kai P.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Clark · Ford
+                                Ranger Raptor</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-primary transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/20"></div>
+                    <div class="flex text-primary mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star_half</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"First time renting a performance
+                        car and the ID verification made me feel like the platform actually screens its riders/drivers. Deposit
+                        was released back within a day of returning the unit."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-primary-container/20 border border-primary/30 flex items-center justify-center font-label-mono text-xs text-primary font-bold">
+                            MC</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Mika C.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Pasig · Tactical
+                                Coupe Class</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative group p-8 bg-background border border-surface-variant hover:border-primary-container transition-all duration-300">
+                    <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-container/20">
+                    </div>
+                    <div class="flex text-primary-container mb-4">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span><span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1">star</span>
+                    </div>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"Booked last minute for a Batangas
+                        run and the Fortuner was ready within the hour. The e-wallet checkout was the fastest part of
+                        the whole trip planning process."</p>
+                    <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                        <div
+                            class="w-10 h-10 rounded-full bg-primary/10 border border-primary-container/30 flex items-center justify-center font-label-mono text-xs text-primary-container font-bold">
+                            LS</div>
+                        <div>
+                            <p class="font-label-mono text-xs uppercase text-on-background">Lex S.</p>
+                            <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Batangas ·
+                                Armored SUV Class</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer
+            class="bg-surface-container-lowest border-t border-surface-variant w-full py-12 px-6 md:px-margin-desktop">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter items-start max-w-container-max mx-auto">
+                <div class="space-y-6">
+                    <div
+                        class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold italic uppercase tracking-tighter">
+                        WheelRentraGo</div>
+                    <p class="font-label-mono text-label-mono text-on-surface-variant max-w-xs">The ultimate
+                        high-performance rental platform for those who demand precision and velocity. Engineered for the
+                        next generation.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h5 class="font-label-mono text-xs uppercase text-primary font-bold">Network</h5>
+                        <ul class="space-y-2">
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="fleet.html">Fleet Stats</a></li>
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="support.html">Global Support</a></li>
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="account.html">Rider/Driver Registry</a></li>
+                        </ul>
+                    </div>
+                    <div class="space-y-4">
+                        <h5 class="font-label-mono text-xs uppercase text-primary font-bold">Legal</h5>
+                        <ul class="space-y-2">
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="terms.html">Terms of Service</a></li>
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="privacy.html">Privacy Protocol</a></li>
+                            <li><a class="font-label-mono text-label-mono text-on-surface-variant hover:text-secondary transition-colors"
+                                    href="support.html">Security Specs</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <h5 class="font-label-mono text-xs uppercase text-primary font-bold">Neural Subscription</h5>
+                    <div class="flex">
+                        <input
+                            class="bg-surface-container border border-surface-variant p-3 text-[10px] font-label-mono flex-1 focus:border-primary focus:ring-0 outline-none"
+                            placeholder="JOIN_THE_ELITE@DOMAIN.COM" type="email" />
+                        <button
+                            class="bg-primary-container text-on-primary-container px-4 font-bold uppercase text-[10px] hover:bg-primary transition-colors">UP_LINK</button>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">terminal</span></a>
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">podcasts</span></a>
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">share_reviews</span></a>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="max-w-container-max mx-auto mt-12 pt-8 border-t border-surface-variant/30 flex flex-col md:flex-row justify-between items-center text-[10px] font-label-mono text-on-surface-variant/40 gap-2">
+                <p>© 2026 WheelRentraGo. Engineered for Velocity.</p>
+                <p>LATENCY_CHECK: 0.04ms // STATUS: ONLINE</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Mobile Nav Bar -->
+    <div
+        class="lg:hidden fixed bottom-0 w-full z-50 bg-background/95 backdrop-blur-lg border-t border-outline-variant flex justify-around py-4">
+        <a class="flex flex-col items-center space-y-1 text-primary" href="index.html">
+            <span class="material-symbols-outlined">home</span><span
+                class="font-label-mono text-[8px] uppercase">Home</span>
+        </a>
+        <a class="flex flex-col items-center space-y-1 text-on-surface-variant" href="fleet.html">
+            <span class="material-symbols-outlined">search</span><span
+                class="font-label-mono text-[8px] uppercase">Catalog</span>
+        </a>
+        <a href="fleet.html" class="-mt-8 bg-primary-container p-3 rounded-full shadow-[0_0_15px_rgba(255,85,64,0.5)]">
+            <span class="material-symbols-outlined text-on-primary-container">qr_code_scanner</span>
+        </a>
+        <a class="flex flex-col items-center space-y-1 text-on-surface-variant" href="tracking.html">
+            <span class="material-symbols-outlined">location_on</span><span
+                class="font-label-mono text-[8px] uppercase">Track</span>
+        </a>
+        <a class="flex flex-col items-center space-y-1 text-on-surface-variant" href="wallet.html">
+            <span class="material-symbols-outlined">person</span><span
+                class="font-label-mono text-[8px] uppercase">Profile</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+    <script>
+        // ---- Session-aware shell: guest view, or redirect Riders/Admins to
+        // their own dashboards. index.html is the Customer home only. ----
+        WRG.api.getSession().then(session => {
+            if (session && session.role === 'rider') { window.location.href = 'rider-dashboard.html'; return; }
+            if (session && session.role === 'admin') { window.location.href = 'admin.html'; return; }
+            if (session) {
+                document.getElementById('sidebar-rider').textContent = session.name || 'Rider/Driver';
+                document.getElementById('sidebar-status').textContent = 'Elite Status';
+                document.getElementById('sidebar-account-links').classList.remove('hidden');
+            } else {
+                document.getElementById('sidebar-guest-link').classList.remove('hidden');
+                document.getElementById('sidebar-guest-link').classList.add('flex');
+            }
+        });
+
+        // ---- Alpine component: Featured Fleet bento grid, real WRG fleet data.
+        // Replaces the old innerHTML template-literal builder above. ----
+        function homePage() {
+            return {
+                fleet: [],
+                sizeClasses: ['md:col-span-8', 'md:col-span-4', 'md:col-span-4', 'md:col-span-8'],
+                badgeClasses: ['bg-primary-container text-on-primary-container', 'bg-secondary-container text-on-secondary-container', 'bg-tertiary-container text-on-tertiary-container', 'bg-primary-container text-on-primary-container'],
+                async load() {
+                    this.fleet = await WRG.api.getFleet();
+                }
+            };
+        }
+
+        // ---- Populate Rider Testimonials from real submitted reviews ----
+        // The 6 cards hard-coded in the HTML act as bootstrap/fallback content
+        // so the section never looks empty before real riders start reviewing.
+        // Once there are enough genuine reviews, they replace the fallback.
+        const REVIEW_CARD_STYLES = [
+            { border: 'hover:border-primary', star: 'text-primary', avatarBg: 'bg-primary-container/20 border-primary/30', avatarText: 'text-primary' },
+            { border: 'hover:border-secondary', star: 'text-secondary', avatarBg: 'bg-secondary-container/20 border-secondary/30', avatarText: 'text-secondary' },
+            { border: 'hover:border-primary-container', star: 'text-primary-container', avatarBg: 'bg-primary/10 border-primary-container/30', avatarText: 'text-primary-container' }
+        ];
+        const MIN_REAL_REVIEWS_TO_SHOW = 3;
+
+        function initials(name) {
+            return (name || 'Rider/Driver').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        }
+        function reviewStars(rating) {
+            const full = Math.floor(rating), half = rating - full >= 0.5;
+            let out = '';
+            for (let i = 0; i < full; i++) out += `<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">star</span>`;
+            if (half) out += `<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">star_half</span>`;
+            return out;
+        }
+        function reviewCardHtml(r, i) {
+            const s = REVIEW_CARD_STYLES[i % REVIEW_CARD_STYLES.length];
+            const name = r.riderName || 'Verified Rider/Driver';
+            const displayName = name.split(/\s+/)[0] + (name.split(/\s+/)[1] ? ' ' + name.split(/\s+/)[1][0] + '.' : '');
+            const vehicle = r.vehicleName || (r.vehicleId ? r.vehicleId.replace(/-/g, ' ').toUpperCase() : 'WheelRentraGo Vehicle');
+            return `
+        <div class="relative group p-8 bg-background border border-surface-variant ${s.border} transition-all duration-300">
+            <div class="flex ${s.star} mb-4">${reviewStars(r.rating)}</div>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-6">"${escapeHtmlHome(r.comment || 'Great experience renting through WheelRentraGo.')}"</p>
+            <div class="flex items-center space-x-3 pt-4 border-t border-surface-variant/30">
+                <div class="w-10 h-10 rounded-full ${s.avatarBg} border flex items-center justify-center font-label-mono text-xs ${s.avatarText} font-bold">${initials(name)}</div>
+                <div>
+                    <p class="font-label-mono text-xs uppercase text-on-background">${escapeHtmlHome(displayName)}</p>
+                    <p class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">${escapeHtmlHome(vehicle)}</p>
+                </div>
+            </div>
+        </div>`;
+        }
+        function escapeHtmlHome(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        WRG.api.getFeaturedReviews(6).then(reviews => {
+            if (!reviews || reviews.length < MIN_REAL_REVIEWS_TO_SHOW) return; // keep fallback cards
+            const grid = document.getElementById('reviews-grid');
+            grid.innerHTML = reviews.map(reviewCardHtml).join('');
+            const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+            document.getElementById('reviews-rating-summary').textContent =
+                `${avg.toFixed(1)} / 5 AVG RATING · ${reviews.length}+ REVIEWS`;
+        });
+
+        // ---- Neural Query search bar (cosmetic + quick filters route to fleet page) ----
+        const placeholders = ["Find a track-ready beast...", "Fastest AWD models near me...", "Identify vehicle by status code...", "Neural link status: Optimal"];
+        let i = 0;
+        const aiInput = document.getElementById('ai-query');
+        setInterval(() => { aiInput.placeholder = placeholders[i % placeholders.length]; i++; }, 3000);
+
+        function goToFleet(query) {
+            sessionStorage.setItem('wrg_query', query || '');
+            window.location.href = 'fleet.html';
+        }
+        document.getElementById('ai-query-btn').addEventListener('click', () => goToFleet(aiInput.value));
+        aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') goToFleet(aiInput.value); });
+        document.querySelectorAll('.quick-query').forEach(a => {
+            a.addEventListener('click', (e) => { e.preventDefault(); goToFleet(a.dataset.q); });
+        });
+
+        // ---- Mouse-reactive panel glow ----
+        document.addEventListener('mousemove', (e) => {
+            document.querySelectorAll('.rog-panel').forEach(panel => {
+                const rect = panel.getBoundingClientRect();
+                const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
+                    panel.style.setProperty('--mouse-x', `${x}px`);
+                    panel.style.setProperty('--mouse-y', `${y}px`);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

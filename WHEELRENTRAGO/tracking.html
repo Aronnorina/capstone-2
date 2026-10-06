@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+    <title>WheelRentraGo | GPS Tracking &amp; HUD</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <!-- Leaflet CSS — real map, no API key needed -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="style.build.css" rel="stylesheet" />
+    <style>
+        /* Override Leaflet tile attribution to match dark theme */
+        .leaflet-control-attribution {
+            background: rgba(10, 10, 13, 0.75) !important;
+            color: #5c5f68 !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 9px !important;
+            border: 1px solid #232328 !important;
+        }
+
+        .leaflet-control-attribution a {
+            color: #5c5f68 !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: #141414 !important;
+            color: #ffb4a8 !important;
+            border-color: #2a2a2a !important;
+            font-size: 16px !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: #1c1b1b !important;
+            color: #ff5540 !important;
+        }
+
+        /* Custom car marker */
+        .wrg-marker {
+            background: #ff5540;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 6px rgba(255, 85, 64, 0.25), 0 0 20px rgba(255, 85, 64, 0.6);
+            font-size: 18px;
+            animation: marker-pulse 2s infinite;
+        }
+
+        @keyframes marker-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 6px rgba(255, 85, 64, 0.25), 0 0 20px rgba(255, 85, 64, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 0 12px rgba(255, 85, 64, 0.08), 0 0 30px rgba(255, 85, 64, 0.8);
+            }
+        }
+
+        .wrg-marker-ring {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgba(255, 85, 64, 0.4);
+            border-radius: 50%;
+            top: -15px;
+            left: -15px;
+            animation: ring-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ring-ping {
+
+            75%,
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Scan overlay on map */
+        .scan-overlay-map {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 238, 252, 0.04) 50%);
+            background-size: 100% 4px;
+        }
+
+        /* Map takes full space */
+        #map {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container lg:overflow-hidden lg:h-screen flex flex-col lg:flex-row">
+
+    <!-- Sidebar -->
+    <nav
+        class="lg:fixed left-0 top-0 lg:h-full w-full lg:w-64 z-40 bg-surface-container-low border-b lg:border-b-0 lg:border-r border-outline-variant shadow-lg flex lg:flex-col lg:py-8 lg:space-y-6 items-center lg:items-stretch px-4 lg:px-0 py-3 justify-between lg:justify-start">
+        <a href="index.html" class="px-0 lg:px-6 lg:mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container flex items-center justify-center rounded-sm">
+                <span class="material-symbols-outlined text-on-primary-container"
+                    style="font-variation-settings:'FILL' 1;">speed</span>
+            </div>
+            <div class="hidden sm:block">
+                <h2
+                    class="font-headline-lg text-headline-lg leading-none tracking-tighter italic uppercase text-primary">
+                    WRG</h2>
+                <p class="font-label-mono text-label-mono opacity-50">V_CORE.2.0</p>
+            </div>
+        </a>
+        <div class="hidden lg:flex flex-1 space-y-1 flex-col">
+            <a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 mx-4 hover:bg-surface-variant transition-colors duration-200 group"
+                href="index.html"><span
+                    class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span><span
+                    class="font-label-mono text-label-mono">Home</span></a>
+            <a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 mx-4 hover:bg-surface-variant transition-colors duration-200 group"
+                href="fleet.html"><span
+                    class="material-symbols-outlined group-hover:scale-110 transition-transform">directions_car</span><span
+                    class="font-label-mono text-label-mono">Garage</span></a>
+            <a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-r-full mr-4 p-3 group"
+                href="tracking.html"><span
+                    class="material-symbols-outlined group-hover:scale-110 transition-transform">explore</span><span
+                    class="font-label-mono text-label-mono">Maps</span></a>
+            <a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 mx-4 hover:bg-surface-variant transition-colors duration-200 group"
+                href="wallet.html"><span
+                    class="material-symbols-outlined group-hover:scale-110 transition-transform">account_balance_wallet</span><span
+                    class="font-label-mono text-label-mono">Wallet</span></a>
+            <a class="flex items-center gap-4 text-on-surface-variant hover:text-secondary p-3 mx-4 hover:bg-surface-variant transition-colors duration-200 group"
+                href="support.html"><span
+                    class="material-symbols-outlined group-hover:scale-110 transition-transform">psychology</span><span
+                    class="font-label-mono text-label-mono">AI Helper</span></a>
+        </div>
+        <div class="hidden lg:block px-4 py-6 border-t border-outline-variant space-y-4">
+            <div class="flex items-center gap-3 p-2 bg-surface-container rounded-lg">
+                <div
+                    class="w-10 h-10 rounded-sm border border-primary/30 bg-primary-container/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-base">person</span>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="font-label-mono text-[10px] text-primary uppercase" id="sidebar-name">Rider/Driver_Zero</p>
+                    <p class="font-label-mono text-[9px] opacity-60">Elite Status</p>
+                </div>
+            </div>
+            <a href="fleet.html"
+                class="block text-center w-full bg-primary-container text-on-primary-container py-3 font-label-mono text-label-mono uppercase font-bold chamfer-tr-bl hover:brightness-125 active:scale-95 transition-all">Scan
+                Vehicle</a>
+        </div>
+    </nav>
+
+    <!-- Main Canvas -->
+    <main class="lg:ml-64 flex-1 relative flex flex-col lg:h-full bg-[#0b0b0b]">
+
+        <!-- Header -->
+        <header
+            class="h-16 px-4 md:px-8 flex items-center justify-between z-30 bg-background/80 backdrop-blur-md border-b border-outline-variant"
+            style="position:relative;">
+            <div class="flex items-center gap-3 md:gap-6">
+                <h1 class="font-headline-lg text-lg md:text-headline-lg tracking-tighter uppercase italic text-primary">
+                    Tracking Hub</h1>
+                <div
+                    class="hidden sm:flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-sm border border-outline-variant">
+                    <span class="w-2 h-2 bg-secondary rounded-full animate-pulse" id="link-dot"></span>
+                    <span class="font-label-mono text-[10px] uppercase" id="link-label">Connecting…</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <button id="refresh-btn"
+                    class="material-symbols-outlined p-2 hover:bg-surface-variant rounded-full transition-colors"
+                    title="Refresh position">refresh</button>
+                <button id="center-btn"
+                    class="material-symbols-outlined p-2 hover:bg-surface-variant rounded-full transition-colors"
+                    title="Center on driver">my_location</button>
+                <button id="breach-test-btn"
+                    class="font-label-mono text-[9px] uppercase text-error border border-error/40 hover:bg-error/10 px-3 py-2 rounded-sm transition-colors"
+                    title="Move the unit outside the geofence to demonstrate the alert">Simulate Breach</button>
+                <a href="fleet.html"
+                    class="bg-primary-container text-on-primary-container px-4 md:px-6 py-1.5 font-label-mono text-label-mono uppercase font-bold chamfer-tr-bl hover:shadow-[0_0_15px_rgba(255,85,64,0.3)] transition-all">Rent
+                    Now</a>
+            </div>
+        </header>
+
+        <!-- Map + HUD layer -->
+        <div class="flex-1 relative overflow-hidden min-h-[500px]">
+
+            <!-- REAL LEAFLET MAP -->
+            <div id="map"></div>
+
+            <!-- Scanline overlay -->
+            <div class="scan-overlay-map"></div>
+
+            <!-- LEFT HUD: Active Fleet panel -->
+            <div class="absolute top-6 left-6 z-20 space-y-3 w-72 pointer-events-none">
+                <div
+                    class="hud-panel bg-surface-dim/90 backdrop-blur-xl border border-primary/30 p-5 pointer-events-auto glow-border">
+                    <div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+                        <span class="font-label-mono text-[11px] text-primary uppercase font-bold">Active Fleet</span>
+                        <span class="font-label-mono text-[10px] text-on-surface/50">1/12 ONLINE</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-4 p-2 bg-surface-container-high border-l-2 border-primary cursor-pointer hover:bg-surface-container transition-colors"
+                            id="unit-row" onclick="centerOnDriver()">
+                            <span class="material-symbols-outlined text-primary" id="hud-unit-icon"
+                                style="font-variation-settings:'FILL' 1;">directions_car</span>
+                            <div class="flex-1">
+                                <p class="font-label-mono text-[11px] text-on-background" id="hud-unit-name">—</p>
+                                <p class="font-label-mono text-[9px] text-secondary/80 uppercase" id="hud-vehicle-name"></p>
+                                <p class="font-label-mono text-[9px] text-primary/70">SPEED: <span
+                                        id="hud-speed">—</span> KM/H</p>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-[14px] text-secondary animate-pulse">gps_fixed</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-2 opacity-30">
+                            <span class="material-symbols-outlined">two_wheeler</span>
+                            <div class="flex-1">
+                                <p class="font-label-mono text-[11px]">CYBER-PULSE 400</p>
+                                <p class="font-label-mono text-[9px]">SPEED: 0 KM/H</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid sector panel -->
+                <div
+                    class="hud-panel bg-surface-dim/85 backdrop-blur-md border border-outline-variant p-4 pointer-events-auto">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-label-mono text-[10px] text-on-surface/60 uppercase">Grid Sector</span>
+                        <span class="font-label-mono text-[10px] text-secondary">NCR-14-PH</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-surface-container-lowest p-2 border border-outline-variant/30">
+                            <p class="font-label-mono text-[8px] text-on-surface/40">LAT</p>
+                            <p class="font-label-mono text-xs text-secondary" id="hud-lat">—</p>
+                        </div>
+                        <div class="bg-surface-container-lowest p-2 border border-outline-variant/30">
+                            <p class="font-label-mono text-[8px] text-on-surface/40">LNG</p>
+                            <p class="font-label-mono text-xs text-secondary" id="hud-lng">—</p>
+                        </div>
+                        <div class="bg-surface-container-lowest p-2 border border-outline-variant/30">
+                            <p class="font-label-mono text-[8px] text-on-surface/40">GEOFENCE</p>
+                            <p class="font-label-mono text-xs text-secondary" id="hud-geofence">15KM OK</p>
+                        </div>
+                        <div class="bg-surface-container-lowest p-2 border border-outline-variant/30">
+                            <p class="font-label-mono text-[8px] text-on-surface/40">TRAFFIC</p>
+                            <p class="font-label-mono text-xs text-error">HIGH</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geofence breach banner — hidden until a breach is detected -->
+                <div id="breach-banner" class="hidden hud-panel bg-error/15 backdrop-blur-xl border-2 border-error p-4 pointer-events-auto">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="material-symbols-outlined text-error text-lg">warning</span>
+                        <span class="font-label-mono text-[11px] text-error uppercase font-bold">Geofence Breach</span>
+                    </div>
+                    <p class="font-label-mono text-[9px] text-on-surface-variant" id="breach-detail">—</p>
+                </div>
+            </div>
+
+            <!-- RIGHT HUD: Telemetry panel -->
+            <div class="hidden md:flex absolute top-6 right-6 bottom-6 w-80 z-20 flex-col pointer-events-none">
+                <div
+                    class="flex-1 hud-panel bg-surface-dim/90 backdrop-blur-xl border border-secondary/20 p-6 pointer-events-auto flex flex-col overflow-hidden">
+                    <div class="mb-5">
+                        <h3
+                            class="font-headline-lg text-lg text-secondary uppercase italic tracking-tighter border-b border-secondary/20 pb-2">
+                            Telemetry Data</h3>
+                    </div>
+                    <div class="space-y-6 flex-1 overflow-y-auto">
+
+                        <!-- Speed -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-end">
+                                <span class="font-label-mono text-[10px] uppercase opacity-60">Velocity</span>
+                                <span class="font-display-lg text-2xl text-on-background"><span id="tele-speed">—</span>
+                                    <span class="text-xs opacity-50">km/h</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-surface-container-high overflow-hidden flex gap-0.5"
+                                id="speed-bars"></div>
+                        </div>
+
+                        <!-- ETA -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-end">
+                                <span class="font-label-mono text-[10px] uppercase opacity-60">ETA</span>
+                                <span class="font-label-mono text-lg text-secondary" id="tele-eta">—</span>
+                            </div>
+                            <div class="h-1 w-full bg-surface-container-high overflow-hidden relative">
+                                <div class="h-full bg-secondary absolute top-0 left-0 transition-all duration-500"
+                                    id="eta-bar" style="width:60%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Driver -->
+                        <div class="space-y-2">
+                            <span class="font-label-mono text-[10px] uppercase opacity-60 block">Driver</span>
+                            <div
+                                class="flex items-center gap-3 bg-surface-container px-3 py-2 border border-outline-variant/20">
+                                <span class="material-symbols-outlined text-primary text-sm"
+                                    style="font-variation-settings:'FILL' 1;">badge</span>
+                                <span class="font-label-mono text-[11px]" id="hud-driver">—</span>
+                            </div>
+                        </div>
+
+                        <!-- System Integrity -->
+                        <div class="space-y-3">
+                            <span class="font-label-mono text-[10px] uppercase opacity-60 block">System Integrity</span>
+                            <div
+                                class="flex items-center justify-between bg-surface-container px-3 py-2 border border-outline-variant/20">
+                                <div class="flex items-center gap-2"><span
+                                        class="material-symbols-outlined text-xs text-primary">memory</span><span
+                                        class="font-label-mono text-[10px]">Onboard AI</span></div>
+                                <span class="font-label-mono text-[10px] text-green-400">ACTIVE</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between bg-surface-container px-3 py-2 border border-outline-variant/20">
+                                <div class="flex items-center gap-2"><span
+                                        class="material-symbols-outlined text-xs text-primary">hvac</span><span
+                                        class="font-label-mono text-[10px]">Thermal Ctrl</span></div>
+                                <span class="font-label-mono text-[10px] text-green-400">NOMINAL</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between bg-surface-container px-3 py-2 border border-outline-variant/20">
+                                <div class="flex items-center gap-2"><span
+                                        class="material-symbols-outlined text-xs text-primary">security</span><span
+                                        class="font-label-mono text-[10px]">Encryption</span></div>
+                                <span class="font-label-mono text-[10px] text-green-400">SECURE</span>
+                            </div>
+                        </div>
+
+                        <!-- Session log -->
+                        <div class="space-y-3 mt-auto">
+                            <span class="font-label-mono text-[10px] uppercase opacity-60 block">Current Session</span>
+                            <div class="border-l border-outline-variant/50 ml-2 pl-4 space-y-3">
+                                <div class="relative">
+                                    <div class="absolute -left-[21px] top-1 w-2 h-2 bg-secondary rounded-full"></div>
+                                    <p class="font-label-mono text-[9px] opacity-50" id="log-time">—</p>
+                                    <p class="font-label-mono text-[11px]">Departure: NCR Pickup Hub</p>
+                                </div>
+                                <div class="relative">
+                                    <div
+                                        class="absolute -left-[21px] top-1 w-2 h-2 bg-primary rounded-full animate-pulse">
+                                    </div>
+                                    <p class="font-label-mono text-[9px] opacity-50">LIVE</p>
+                                    <p class="font-label-mono text-[11px] text-primary" id="log-status">En route</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real GPS share button — visible on mobile (unlike the desktop-only
+                 right HUD panel), meant for the driver/renter's own phone. -->
+            <button id="gps-share-btn" onclick="toggleRealGps()"
+                class="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-surface-container-high border border-secondary/40 text-secondary px-6 py-3 rounded-sm chamfer-tr-bl shadow-[0_0_20px_rgba(0,238,252,0.2)] hover:scale-105 active:scale-95 transition-all group md:left-auto md:translate-x-0 md:right-96 md:bottom-24">
+                <span id="gps-share-icon" class="material-symbols-outlined font-bold"
+                    style="font-variation-settings:'FILL' 0;">my_location</span>
+                <span id="gps-share-label" class="font-label-mono text-sm font-bold uppercase hidden sm:inline">Share My Live GPS</span>
+            </button>
+
+            <!-- AI Support button -->
+            <a href="support.html"
+                class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-secondary-container text-on-secondary-container px-6 py-3 rounded-sm chamfer-tr-bl shadow-[0_0_20px_rgba(0,238,252,0.4)] hover:scale-105 active:scale-95 transition-all group md:left-auto md:translate-x-0 md:right-96 md:bottom-10">
+                <span class="material-symbols-outlined font-bold group-hover:rotate-12 transition-transform"
+                    style="font-variation-settings:'FILL' 1;">psychology</span>
+                <span class="font-label-mono text-sm font-bold uppercase hidden sm:inline">Contact AI Support</span>
+            </a>
+
+        </div><!-- end map+HUD -->
+
+        <!-- Footer -->
+        <footer
+            class="h-12 px-4 md:px-8 flex items-center justify-between bg-surface-container-lowest border-t border-outline-variant z-30">
+            <div class="flex items-center gap-4 md:gap-8">
+                <p class="font-label-mono text-[10px] text-on-surface-variant hidden sm:block">© 2026 WheelRentraGo.
+                    Engineered for Velocity.</p>
+                <div class="flex gap-4">
+                    <a href="fleet.html"
+                        class="font-label-mono text-[10px] uppercase opacity-50 hover:text-secondary transition-colors">Fleet
+                        Stats</a>
+                    <a href="support.html"
+                        class="font-label-mono text-[10px] uppercase opacity-50 hover:text-secondary transition-colors">Global
+                        Support</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-label-mono text-[10px] uppercase opacity-50">Local Time:</span>
+                <span class="font-label-mono text-[10px] text-secondary" id="digital-clock">—</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+    <script>
+        // ── Clock ─────────────────────────────────────────────────────────────────
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('digital-clock').innerText =
+                now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' PHT';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ── Session name ──────────────────────────────────────────────────────────
+        WRG.api.getSession().then(s => {
+            if (s) document.getElementById('sidebar-name').textContent = s.name.split(' ')[0].toUpperCase();
+        });
+
+        // ── Which car are we tracking? ───────────────────────────────────────────
+        // Comes from fleet.html's Track button (?vehicle=<id>); falls back to
+        // whatever vehicle is currently selected, then the default mock unit.
+        const trackedVehicleId = new URLSearchParams(window.location.search).get('vehicle');
+
+        // ── Leaflet Map Setup ────────────────────────────────────────────────────
+        // Dark tile layer — Esri "World Dark Gray Base" (free, no API key
+        // required). Switched away from CARTO's dark_all tiles because
+        // CARTO now requires a registered API key even for basic usage —
+        // without one, their tiles render an "API KEY REQUIRED" watermark
+        // instead of the actual map. Esri's dark canvas tiles are still
+        // freely usable without any key/signup as of this writing.
+        const map = L.map('map', {
+            zoomControl: true,
+            attributionControl: true,
+            preferCanvas: true
+        }).setView([14.676, 121.043], 14);  // Quezon City, NCR — re-centered once the tracked unit loads
+
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 19,
+            maxNativeZoom: 16 // Esri's dark canvas tiles stop at z16 — Leaflet auto-upscales beyond that so zooming in further still looks fine, just softer
+        }).addTo(map);
+
+        // ── Custom vehicle marker icons ────────────────────────────────────────────
+        const carIcon = L.divIcon({
+            className: '',
+            html: `<div class="wrg-marker">🚗</div><div class="wrg-marker-ring"></div>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor: [0, -24]
+        });
+        const motoIcon = L.divIcon({
+            className: '',
+            html: `<div class="wrg-marker">🏍️</div><div class="wrg-marker-ring"></div>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor: [0, -24]
+        });
+        // unit.vehicleType is set by WRG.api.getTrackingUnit() — 'motorcycle' or 'car'.
+        // Falls back to the car icon for older cached units that predate this field.
+        function iconForUnit(unit) {
+            return (unit && unit.vehicleType === 'motorcycle') ? motoIcon : carIcon;
+        }
+
+        // ── Simulated onboard GPS device route ─────────────────────────────────
+        // WheelRentaGo doesn't have real GPS hardware installed in the fleet
+        // (out of scope per the paper's Limitations), so each vehicle's
+        // "onboard unit" is simulated — but the simulation genuinely writes
+        // into Supabase and streams out over Realtime, exactly like a real
+        // telemetry device would. See becomeSimulatedDevice() below.
+        const WAYPOINTS = [
+            [14.6760, 121.0437],   // Quezon City - Elliptical Road
+            [14.6508, 121.0494],   // Cubao
+            [14.6298, 121.0329],   // Mandaluyong
+            [14.5995, 120.9842],   // Manila - Ermita
+            [14.5547, 121.0244],   // Makati CBD
+            [14.5176, 121.0509],   // BGC, Taguig
+            [14.5609, 121.0197],   // Pasay - MOA area
+            [14.5800, 120.9830],   // Manila Bay area
+            [14.6200, 121.0000],   // Back toward Manila
+            [14.6760, 121.0437],   // Back to Quezon City
+        ];
+
+        let currentWP = 0;
+        let unit;
+        let driverMarker;
+        let routeLine;
+        let visitedCoords = [];
+        let routeOffsetLat = 0;
+        let routeOffsetLng = 0;
+
+        // ── LIVE GPS state ─────────────────────────────────────────────────────
+        // isLiveMode: true once we're subscribed to this vehicle's real Supabase
+        // Realtime feed. isDeviceLeader: true if THIS tab is the one actually
+        // driving the simulated device (see leader-election in init, below) —
+        // only the leader writes to the DB; every tab (leader or not) renders
+        // off the same Realtime stream, so what you see is always the real row.
+        let isLiveMode = false;
+        let isDeviceLeader = false;
+        let hasReceivedLiveFix = false;
+        let liveChannel = null;
+        let deviceInterval = null;
+
+        function setLinkBadge(state) {
+            // state: 'connecting' | 'live' | 'waiting' | 'demo'
+            const dot = document.getElementById('link-dot');
+            const label = document.getElementById('link-label');
+            const map3 = {
+                connecting: ['bg-secondary', 'Connecting…'],
+                live:       ['bg-green-400', 'Live GPS: Streaming'],
+                waiting:    ['bg-yellow-400', 'Initializing Onboard Unit…'],
+                demo:       ['bg-secondary', 'Demo Route (Offline Mode)']
+            };
+            const [color, text] = map3[state] || map3.connecting;
+            dot.className = 'w-2 h-2 rounded-full ' + (state === 'live' ? 'animate-pulse ' : '') + color;
+            label.textContent = text;
+        }
+
+        // ── Subscribe to this vehicle's real tracking row ────────────────────────
+        // Every INSERT/UPDATE on `tracking` for this vehicle_id — whether it
+        // came from THIS tab's simulated device or another tab/admin viewing
+        // the same car — arrives here in real time via Supabase Realtime.
+        function subscribeLive(vehicleId) {
+            if (!vehicleId || typeof sb !== 'function' || !sb()) return;
+            isLiveMode = true;
+            setLinkBadge('waiting');
+            liveChannel = sb()
+                .channel('tracking-live-' + vehicleId)
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'tracking', filter: 'vehicle_id=eq.' + vehicleId },
+                    payload => { if (payload.new) onLiveUpdate(payload.new); }
+                )
+                .subscribe();
+        }
+
+        function onLiveUpdate(row) {
+            if (!unit || bookingIsPending) return;
+            hasReceivedLiveFix = true;
+
+            unit.lat = row.lat;
+            unit.lng = row.lng;
+            unit.speed = row.speed || 0;
+            unit.driver = row.driver_name || unit.driver;
+            unit.unitId = row.unit_id || unit.unitId;
+            unit.status = 'LIVE';
+            unit.eta = 'LIVE';
+
+            driverMarker.setLatLng([unit.lat, unit.lng]);
+            map.panTo([unit.lat, unit.lng]);
+
+            visitedCoords.push([unit.lat, unit.lng]);
+            if (visitedCoords.length > 400) visitedCoords.shift(); // cap breadcrumb memory
+            if (routeLine) map.removeLayer(routeLine);
+            if (visitedCoords.length > 1) {
+                routeLine = L.polyline(visitedCoords, { color: '#ff5540', weight: 3, opacity: 0.7, dashArray: '6 4' }).addTo(map);
+            }
+
+            renderHUD();
+            checkGeofence();
+            setLinkBadge('live');
+        }
+
+        // ── Simulated onboard GPS device ──────────────────────────────────────
+        // Only ONE tab per vehicle should actually push positions (otherwise
+        // multiple tabs would fight over the route). See the leader-election
+        // check in init(): whoever opens tracking.html first for a vehicle
+        // with no recent activity claims the "device" and starts pushing;
+        // everyone else just watches the Realtime stream.
+        function becomeSimulatedDevice(vehicleId) {
+            isDeviceLeader = true;
+            deviceInterval = setInterval(() => {
+                const next = WAYPOINTS[currentWP % WAYPOINTS.length];
+                currentWP++;
+                const lat = next[0] + routeOffsetLat + (Math.random() - 0.5) * 0.004;
+                const lng = next[1] + routeOffsetLng + (Math.random() - 0.5) * 0.004;
+                const speed = 25 + Math.floor(Math.random() * 85);
+                WRG.api.updateTrackingPosition(vehicleId, {
+                    lat, lng, speed, driverName: unit.driver || 'Onboard GPS Unit'
+                }).catch(err => console.warn('Simulated device push failed:', err.message));
+            }, 4000);
+        }
+
+        // ── REAL GPS — driver/renter's own phone ─────────────────────────────────
+        // Toggled by the "Share My Live GPS" button. Uses the browser's
+        // navigator.geolocation (works on any phone browser, no app needed —
+        // just needs the location permission prompt to be accepted). While
+        // active, this overrides the simulated device push so the real
+        // position wins; stopping it leaves the vehicle static until either
+        // side pushes again.
+        let realGpsWatchId = null;
+        let realGpsActive = false;
+
+        function toggleRealGps() {
+            if (!unit || !unit.vehicleId) { WRG.toast('No vehicle selected to track'); return; }
+            if (!navigator.geolocation) { WRG.toast('This browser does not support GPS location'); return; }
+
+            if (realGpsActive) {
+                stopRealGps();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                () => startRealGps(unit.vehicleId),
+                (err) => {
+                    WRG.toast('Location permission denied — enable it in browser settings to share GPS');
+                    console.warn('Geolocation error:', err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function startRealGps(vehicleId) {
+            // A real GPS feed always wins over the simulated one — stop the
+            // fake route push if it was running so positions don't fight.
+            if (deviceInterval) { clearInterval(deviceInterval); deviceInterval = null; }
+            isDeviceLeader = true;
+            realGpsActive = true;
+
+            const btn = document.getElementById('gps-share-btn');
+            const icon = document.getElementById('gps-share-icon');
+            const label = document.getElementById('gps-share-label');
+            btn.classList.add('bg-primary-container', 'border-primary', 'text-on-primary-container');
+            btn.classList.remove('bg-surface-container-high', 'border-secondary/40', 'text-secondary');
+            icon.style.setProperty('font-variation-settings', "'FILL' 1");
+            label.textContent = 'Sharing Live GPS — Tap to Stop';
+            WRG.toast('📍 Sharing your real GPS location');
+
+            realGpsWatchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    // speed comes in m/s (or null on many devices/browsers) —
+                    // convert to km/h and fall back to 0 rather than showing NaN.
+                    const speedKmh = typeof pos.coords.speed === 'number' && pos.coords.speed >= 0
+                        ? Math.round(pos.coords.speed * 3.6) : 0;
+                    WRG.api.updateTrackingPosition(vehicleId, {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        speed: speedKmh,
+                        driverName: unit.driver || 'Live Phone GPS'
+                    }).catch(err => console.warn('Real GPS push failed:', err.message));
+                },
+                (err) => {
+                    console.warn('watchPosition error:', err.message);
+                    WRG.toast('Lost GPS signal — retrying…');
+                },
+                { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
+            );
+        }
+
+        function stopRealGps() {
+            if (realGpsWatchId !== null) { navigator.geolocation.clearWatch(realGpsWatchId); realGpsWatchId = null; }
+            realGpsActive = false;
+
+            const btn = document.getElementById('gps-share-btn');
+            const icon = document.getElementById('gps-share-icon');
+            const label = document.getElementById('gps-share-label');
+            btn.classList.remove('bg-primary-container', 'border-primary', 'text-on-primary-container');
+            btn.classList.add('bg-surface-container-high', 'border-secondary/40', 'text-secondary');
+            icon.style.setProperty('font-variation-settings', "'FILL' 0");
+            label.textContent = 'Share My Live GPS';
+            WRG.toast('Stopped sharing GPS');
+        }
+
+        // ── Geofencing — Specific Objective #4 ──────────────────────────────────
+        // Authorized operating zone. Center is set to each vehicle's own
+        // pickup point once its tracking unit loads (see below); radius is
+        // fixed for this demo. GPS hardware itself is out of scope per the
+        // paper's stated Limitations — this section demonstrates the
+        // boundary-check + alert LOGIC against the existing simulated
+        // position feed, which is the part WheelRentaGo controls.
+        const GEOFENCE = { lat: 14.676, lng: 121.043, radiusKm: 15 };
+        let geofenceBreached = false;
+        let geofenceCircle = null;
+
+        function distanceKm(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function checkGeofence() {
+            const dist = distanceKm(unit.lat, unit.lng, GEOFENCE.lat, GEOFENCE.lng);
+            const breached = dist > GEOFENCE.radiusKm;
+            const badge = document.getElementById('hud-geofence');
+            if (badge) {
+                badge.textContent = breached ? dist.toFixed(1) + 'KM BREACH' : GEOFENCE.radiusKm + 'KM OK';
+                badge.className = 'font-label-mono text-xs ' + (breached ? 'text-error' : 'text-secondary');
+            }
+            if (breached && !geofenceBreached) {
+                geofenceBreached = true;
+                const banner = document.getElementById('breach-banner');
+                banner.classList.remove('hidden');
+                document.getElementById('breach-detail').textContent =
+                    unit.unitId + ' is ' + dist.toFixed(1) + 'km outside the ' + GEOFENCE.radiusKm + 'km authorized zone.';
+                WRG.toast('⚠ Geofence breach — ' + unit.unitId + ' outside authorized zone');
+                WRG.api.logNotification('geofence_alert', {
+                    subject: 'Geofence Breach — ' + unit.unitId,
+                    recipientName: unit.driver, relatedId: unit.unitId,
+                    detail: dist.toFixed(1) + 'km outside ' + GEOFENCE.radiusKm + 'km zone'
+                });
+            } else if (!breached && geofenceBreached) {
+                geofenceBreached = false;
+                document.getElementById('breach-banner').classList.add('hidden');
+                WRG.toast(unit.unitId + ' back within authorized zone');
+            }
+        }
+
+        // ── Speed bars renderer ───────────────────────────────────────────────────
+        // ── XSS guard: escape any DB-sourced string before it goes into
+        // innerHTML / Leaflet popup content (unit id, driver name, etc.) ────────
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function renderSpeedBars(speed) {
+            const bars = document.getElementById('speed-bars');
+            const active = Math.min(10, Math.round((speed / 200) * 10));
+            bars.innerHTML = Array.from({ length: 10 }).map((_, i) => {
+                const color = i < active ? (i >= 7 ? 'bg-primary-container' : 'bg-secondary-container') : 'bg-surface-variant';
+                return `<div class="h-full ${color}" style="width:10%"></div>`;
+            }).join('');
+        }
+
+        // ── Update all HUD elements ───────────────────────────────────────────────
+        function renderHUD() {
+            document.getElementById('hud-unit-name').textContent = unit.unitId;
+            document.getElementById('hud-speed').textContent = unit.speed;
+            document.getElementById('hud-lat').textContent = unit.lat.toFixed(4);
+            document.getElementById('hud-lng').textContent = unit.lng.toFixed(4);
+            document.getElementById('tele-speed').textContent = unit.speed;
+            document.getElementById('tele-eta').textContent = unit.eta;
+            document.getElementById('hud-driver').textContent = unit.driver;
+            document.getElementById('log-status').textContent = unit.status + ' — ' + unit.driver;
+            document.getElementById('log-time').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            renderSpeedBars(unit.speed);
+
+            // Popup content
+            if (driverMarker) {
+                driverMarker.getPopup().setContent(`
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e5e2e1;min-width:160px;">
+          <div style="color:#ff5540;font-weight:bold;letter-spacing:1px;margin-bottom:6px;">${escapeHtml(unit.unitId)}</div>
+          <div>Driver: <span style="color:#d3fbff;">${escapeHtml(unit.driver)}</span></div>
+          <div>Speed: <span style="color:#d3fbff;">${unit.speed} km/h</span></div>
+          <div>ETA: <span style="color:#d3fbff;">${unit.eta}</span></div>
+          <div style="margin-top:4px;opacity:0.5;">${unit.lat.toFixed(5)}, ${unit.lng.toFixed(5)}</div>
+        </div>
+      `);
+            }
+        }
+
+        // ── Move marker to next waypoint ──────────────────────────────────────────
+        function advanceToNextWaypoint() {
+            const next = WAYPOINTS[currentWP % WAYPOINTS.length];
+            currentWP++;
+
+            const [lat, lng] = next;
+            unit.lat = lat + routeOffsetLat + (Math.random() - 0.5) * 0.004;
+            unit.lng = lng + routeOffsetLng + (Math.random() - 0.5) * 0.004;
+            unit.speed = 25 + Math.floor(Math.random() * 85);
+            unit.eta = Math.max(1, 8 - Math.floor(currentWP % 10)) + ' MIN';
+
+            // Move the Leaflet marker
+            driverMarker.setLatLng([unit.lat, unit.lng]);
+
+            // Draw breadcrumb trail
+            visitedCoords.push([unit.lat, unit.lng]);
+            if (routeLine) map.removeLayer(routeLine);
+            if (visitedCoords.length > 1) {
+                routeLine = L.polyline(visitedCoords, {
+                    color: '#ff5540',
+                    weight: 3,
+                    opacity: 0.7,
+                    dashArray: '6 4'
+                }).addTo(map);
+            }
+
+            renderHUD();
+            checkGeofence();
+        }
+
+        // ── Init tracking ─────────────────────────────────────────────────────────
+        let bookingIsPending = false;
+
+        WRG.api.getTrackingUnit(trackedVehicleId).then(u => {
+            unit = u;
+
+            // Fake-route offset is only meaningful in fallback/demo mode; harmless
+            // to compute either way, but only ever consumed by advanceToNextWaypoint().
+            routeOffsetLat = unit.lat - WAYPOINTS[0][0];
+            routeOffsetLng = unit.lng - WAYPOINTS[0][1];
+            map.setView([unit.lat, unit.lng], 14);
+
+            // Geofence is centered on this vehicle's own pickup point, not
+            // a fixed city-wide point — each rental has its own zone.
+            GEOFENCE.lat = unit.lat;
+            GEOFENCE.lng = unit.lng;
+            geofenceCircle = L.circle([GEOFENCE.lat, GEOFENCE.lng], {
+                radius: GEOFENCE.radiusKm * 1000,
+                color: '#ff5540', weight: 1, opacity: 0.5, fillColor: '#ff5540', fillOpacity: 0.04, dashArray: '4 6'
+            }).addTo(map);
+
+            // Reflect which vehicle is being tracked in the tab title and HUD
+            if (unit.vehicleName) {
+                document.title = 'WheelRentraGo | Tracking ' + unit.vehicleName;
+                const vehicleNameEl = document.getElementById('hud-vehicle-name');
+                if (vehicleNameEl) vehicleNameEl.textContent = unit.vehicleName;
+            }
+
+            // The fleet-panel icon was previously hardcoded to the car icon
+            // regardless of vehicle type. Match it to unit.vehicleType, same
+            // way the map pin already does via iconForUnit().
+            const hudUnitIconEl = document.getElementById('hud-unit-icon');
+            if (hudUnitIconEl) {
+                hudUnitIconEl.textContent = unit.vehicleType === 'motorcycle' ? 'two_wheeler' : 'directions_car';
+            }
+
+            // Place marker on real map — icon depends on whether this vehicle
+            // is a motorcycle or a car (unit.vehicleType, set in app.js).
+            driverMarker = L.marker([unit.lat, unit.lng], { icon: iconForUnit(unit) })
+                .addTo(map)
+                .bindPopup('', {
+                    className: 'wrg-popup',
+                    maxWidth: 200
+                });
+
+            visitedCoords.push([unit.lat, unit.lng]);
+            renderHUD();
+            checkGeofence();
+
+            // Style the popup
+            const style = document.createElement('style');
+            style.textContent = `.wrg-popup .leaflet-popup-content-wrapper{background:#141414;border:1px solid #ff5540;border-radius:0;box-shadow:0 0 20px rgba(255,85,64,0.3);}.wrg-popup .leaflet-popup-tip{background:#ff5540;}`;
+            document.head.appendChild(style);
+
+            // ── Accuracy check against the real booking ─────────────────────────
+            // A reservation you just paid for is still 'pending' until an admin
+            // approves it — the unit shouldn't look like it's already out driving.
+            // If your own booking on this car hasn't been approved yet, freeze the
+            // simulated movement and show the real status instead of faking a route.
+            return WRG.api.getMyBookings().then(bookings => {
+                const mine = bookings.find(b => b.vehicleId === unit.vehicleId);
+                if (mine && mine.status === 'pending') {
+                    bookingIsPending = true;
+                    unit.status = 'PENDING APPROVAL';
+                    unit.eta = '—';
+                    unit.speed = 0;
+                    renderHUD();
+                }
+            }).then(() => {
+                // ── Go live ────────────────────────────────────────────────────
+                if (WRG.USE_SUPABASE && unit.vehicleId && !bookingIsPending) {
+                    subscribeLive(unit.vehicleId);
+
+                    // Leader-election: if the row was updated in the last 8s,
+                    // some other tab/device is already actively driving this
+                    // vehicle's simulation — just watch. Otherwise, THIS tab
+                    // claims the "onboard unit" and starts pushing positions.
+                    const FRESH_MS = 8000;
+                    const isFresh = unit.updatedAt && (Date.now() - new Date(unit.updatedAt).getTime() < FRESH_MS);
+                    if (!isFresh) {
+                        becomeSimulatedDevice(unit.vehicleId);
+                    }
+                } else if (bookingIsPending) {
+                    setLinkBadge('waiting');
+                } else {
+                    setLinkBadge('demo');
+                }
+            });
+        });
+
+        // ── Fallback simulated movement (local only, no DB) ──────────────────────
+        // Only runs when Supabase isn't available at all (offline/demo build) —
+        // a real vehicle always goes through becomeSimulatedDevice()+Realtime.
+        setInterval(() => {
+            if (unit && driverMarker && !bookingIsPending && !isLiveMode) advanceToNextWaypoint();
+        }, 5000);
+
+        // ── Refresh button ────────────────────────────────────────────────────────
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            if (bookingIsPending) {
+                WRG.toast('Awaiting admin approval — live tracking starts once approved');
+                return;
+            }
+            if (isLiveMode) {
+                // Re-pull the latest row manually, in case a Realtime event was
+                // missed (e.g. tab was backgrounded).
+                WRG.api.getTrackingUnit(unit.vehicleId).then(u => {
+                    onLiveUpdate({ lat: u.lat, lng: u.lng, speed: u.speed, driver_name: u.driver, unit_id: u.unitId, status: 'active' });
+                    WRG.toast(hasReceivedLiveFix ? 'Position refreshed' : 'Waiting for the onboard unit to report in');
+                });
+            } else if (unit && driverMarker) {
+                advanceToNextWaypoint();
+                WRG.toast('Position refreshed (demo route)');
+            }
+        });
+
+        // ── Center on driver button ───────────────────────────────────────────────
+        document.getElementById('center-btn').addEventListener('click', centerOnDriver);
+
+        window.addEventListener('pagehide', () => {
+            if (deviceInterval) clearInterval(deviceInterval);
+        });
+
+        // ── Simulate Breach button — jumps the unit ~20km outside its own
+        // geofence center, demonstrating the alert without waiting on real
+        // hardware or the full route loop. ─────────────────────────────────
+        document.getElementById('breach-test-btn').addEventListener('click', () => {
+            if (!unit || !driverMarker) return;
+            unit.lat = GEOFENCE.lat + 0.18; // ~20km north
+            unit.lng = GEOFENCE.lng + 0.10;
+            unit.speed = 40 + Math.floor(Math.random() * 40);
+            driverMarker.setLatLng([unit.lat, unit.lng]);
+            map.flyTo([unit.lat, unit.lng], 13, { animate: true, duration: 1 });
+            renderHUD();
+            checkGeofence();
+        });
+        function centerOnDriver() {
+            if (unit) {
+                map.flyTo([unit.lat, unit.lng], 15, { animate: true, duration: 1 });
+                if (driverMarker) driverMarker.openPopup();
+            }
+        }
+
+        // ── HUD panel glow effect ─────────────────────────────────────────────────
+        document.querySelectorAll('.hud-panel').forEach(panel => {
+            panel.addEventListener('mouseenter', () => { panel.style.boxShadow = '0 0 20px rgba(0,238,252,0.15)'; });
+            panel.addEventListener('mouseleave', () => { panel.style.boxShadow = 'none'; });
+        });
+    </script>
+</body>
+
+</html>

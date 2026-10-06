@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#ff5540"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<title>WheelRentraGo | My Rentals</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="style.build.css" rel="stylesheet"/>
+<style>
+  .star-btn { cursor: pointer; transition: transform .1s ease; }
+  .star-btn:hover { transform: scale(1.15); }
+</style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary-container selection:text-white">
+
+<header class="fixed top-0 w-full z-50 border-b border-outline-variant bg-background/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,85,64,0.3)]">
+<div class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<a href="index.html" class="font-headline-lg text-headline-lg font-bold text-primary italic uppercase tracking-tighter cursor-pointer">WheelRentraGo</a>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="fleet.html">Catalog</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="recommend.html">AI Match</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="tracking.html">Tracking</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-label-mono text-label-mono uppercase tracking-widest" href="bookings.html">My Rentals</a>
+<a class="text-on-background opacity-70 hover:opacity-100 hover:text-primary transition-all duration-300 hover:skew-x-2 font-label-mono text-label-mono uppercase tracking-widest" href="account.html">Account</a>
+</nav>
+<div class="flex items-center space-x-6">
+<div class="hidden sm:flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">smart_toy</span>
+<span class="material-symbols-outlined text-on-background opacity-70 hover:opacity-100 cursor-pointer">notifications</span>
+</div>
+<a href="fleet.html" class="bg-primary-container text-on-primary-container px-6 py-2 chamfer-clip-sm font-bold uppercase tracking-tighter active:scale-95 duration-100 inline-block">Rent Now</a>
+<button onclick="document.getElementById('mobile-menu-panel').classList.toggle('hidden')" class="md:hidden flex items-center justify-center w-9 h-9 text-primary">
+    <span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+<div id="mobile-menu-panel" class="hidden md:hidden bg-surface-container-low border-t border-outline-variant">
+    <div class="flex flex-col px-6 py-2">
+        <a href="fleet.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Catalog</a>
+        <a href="recommend.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">AI Match</a>
+        <a href="tracking.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Tracking</a>
+        <a href="bookings.html" class="py-3 border-b border-outline-variant/20 font-label-mono text-label-mono text-primary uppercase">My Rentals</a>
+        <a href="account.html" class="py-3 font-label-mono text-label-mono text-on-background opacity-80 uppercase">Account</a>
+    </div>
+</div>
+</header>
+
+<div class="flex pt-24 min-h-screen">
+
+<aside class="hidden lg:flex flex-col h-screen sticky top-24 w-64 py-8 space-y-6 bg-surface-container-low border-r border-outline-variant shadow-lg">
+<div class="px-6 flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-primary flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary text-lg">person</span>
+</div>
+<div>
+<div id="sidebar-name" class="font-label-mono text-label-mono font-bold text-on-surface">Rider/Driver_Zero</div>
+<div id="sidebar-status" class="text-[10px] text-secondary uppercase font-bold tracking-widest">Elite Status</div>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="index.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">home</span><span class="font-label-mono text-label-mono">Home</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="fleet.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">directions_car</span><span class="font-label-mono text-label-mono">Garage</span>
+</a>
+<a class="flex items-center space-x-4 bg-secondary-container text-on-secondary-container rounded-r-full mr-4 p-3 group" href="bookings.html">
+<span class="material-symbols-outlined">receipt_long</span><span class="font-label-mono text-label-mono">My Rentals</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="tracking.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">explore</span><span class="font-label-mono text-label-mono">Maps</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="wallet.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">account_balance_wallet</span><span class="font-label-mono text-label-mono">Wallet</span>
+</a>
+<a class="flex items-center space-x-4 p-3 mx-4 text-on-surface-variant hover:text-secondary hover:bg-surface-variant transition-colors duration-200 group" href="recommend.html">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">psychology</span><span class="font-label-mono text-label-mono">AI Match</span>
+</a>
+</nav>
+<div class="px-4 pb-8 space-y-2">
+<a href="tracking.html" class="block text-center w-full bg-outline-variant text-white py-3 chamfer-clip font-label-mono text-label-mono hover:bg-primary-container transition-colors duration-300">Scan Vehicle</a>
+<div class="border-t border-outline-variant/30 pt-4 space-y-1">
+<a class="flex items-center space-x-4 p-3 text-on-surface-variant hover:text-primary transition-colors" href="account.html">
+<span class="material-symbols-outlined">settings</span><span class="font-label-mono text-label-mono">Settings</span>
+</a>
+<a class="flex items-center space-x-4 p-3 text-on-surface-variant hover:text-error transition-colors" href="#" onclick="doLogout(); return false;">
+<span class="material-symbols-outlined">logout</span><span class="font-label-mono text-label-mono">Log Out</span>
+</a>
+</div>
+</div>
+</aside>
+
+<main class="flex-1 px-4 md:px-margin-desktop py-8 max-w-5xl mx-auto">
+
+<section class="mb-10">
+<div class="border-l-4 border-primary pl-6">
+<h1 class="font-display-lg text-display-lg uppercase tracking-tighter leading-none mb-2">My <span class="text-primary italic">Rentals</span></h1>
+<p class="font-body-md text-on-surface-variant max-w-xl opacity-80 uppercase text-xs tracking-[0.2em]">Reservation history, status, and reviews</p>
+</div>
+</section>
+
+<div id="bookings-list" class="space-y-6"></div>
+
+<div id="no-bookings" class="hidden text-center py-20 border border-dashed border-outline-variant chamfer-clip">
+<span class="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-4">directions_car</span>
+<p class="font-label-mono text-label-mono text-on-surface-variant/50 uppercase mb-6">You haven't booked a ride yet</p>
+<a href="fleet.html" class="inline-block px-8 py-3 bg-primary-container text-on-primary-container font-label-mono text-label-mono uppercase font-bold chamfer-clip-sm hover:brightness-110 transition-all">Browse the Fleet</a>
+</div>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+  let myBookings = [];
+  let myReviewsByBooking = {};
+
+  WRG.api.requireAuth().then(session => {
+    if (!session) return;
+    document.getElementById('sidebar-name').textContent = session.name || 'Rider/Driver';
+    loadBookings();
+  });
+
+  function doLogout() {
+    WRG.api.logout().then(() => {
+      WRG.toast('Logged out');
+      setTimeout(() => window.location.href = 'login.html', 600);
+    });
+  }
+
+  function loadBookings() {
+    Promise.all([WRG.api.getMyBookings(), WRG.api.getMyReviews()]).then(([bookings, reviews]) => {
+      myBookings = bookings;
+      myReviewsByBooking = {};
+      reviews.forEach(r => { myReviewsByBooking[String(r.bookingId)] = r; });
+      renderBookings();
+    });
+  }
+
+  const STATUS_STYLE = {
+    pending:   { label: 'Pending Approval', cls: 'text-secondary border-secondary/40' },
+    approved:  { label: 'Approved',         cls: 'text-secondary border-secondary/40' },
+    waitlist:  { label: 'Waitlisted — vehicle in use', cls: 'text-secondary border-secondary/40' },
+    ongoing:   { label: 'Ongoing',          cls: 'text-primary border-primary/40' },
+    completed: { label: 'Completed',        cls: 'text-on-surface-variant border-outline-variant' },
+    rejected:  { label: 'Rejected',         cls: 'text-error border-error/40' },
+    cancelled: { label: 'Cancelled',        cls: 'text-error border-error/40' }
+  };
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function starPickerHtml(bookingId) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+      stars += `<span class="star-btn material-symbols-outlined text-2xl text-on-surface-variant/30" data-value="${i}" onclick="setRating('${bookingId}', ${i})">star</span>`;
+    }
+    return `<div id="stars-${bookingId}" class="flex gap-1">${stars}</div>`;
+  }
+
+  function setRating(bookingId, value) {
+    const wrap = document.getElementById('stars-' + bookingId);
+    wrap.dataset.rating = value;
+    Array.from(wrap.children).forEach(el => {
+      const filled = Number(el.dataset.value) <= value;
+      el.classList.toggle('text-primary', filled);
+      el.classList.toggle('text-on-surface-variant/30', !filled);
+    });
+  }
+
+  function renderStatic(rating) {
+    const n = Math.max(0, Math.min(5, Number(rating) || 0));
+    let out = '';
+    for (let i = 1; i <= 5; i++) {
+      out += `<span class="material-symbols-outlined text-lg ${i <= n ? 'text-primary' : 'text-on-surface-variant/20'}">star</span>`;
+    }
+    return out;
+  }
+
+  function reviewBlock(b) {
+    const review = myReviewsByBooking[String(b.id)];
+    if (review) {
+      return `
+      <div class="mt-4 pt-4 border-t border-outline-variant/30">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase">Your review</span>
+          <div class="flex">${renderStatic(review.rating)}</div>
+        </div>
+        <p class="font-body-md text-sm text-on-surface-variant whitespace-pre-wrap">${escapeHtml(review.comment || '')}</p>
+        ${review.operatorReply ? `
+        <div class="mt-3 border-l-2 border-secondary pl-3">
+          <div class="font-label-mono text-[9px] text-secondary uppercase mb-1">WheelRentraGo replied</div>
+          <p class="font-body-md text-sm text-on-surface-variant whitespace-pre-wrap">${escapeHtml(review.operatorReply)}</p>
+        </div>` : `
+        <p class="font-label-mono text-[10px] text-on-surface-variant/40 uppercase mt-2">Awaiting a reply from WheelRentraGo</p>`}
+      </div>`;
+    }
+    return `
+    <div class="mt-4 pt-4 border-t border-outline-variant/30">
+      <div class="font-label-mono text-[10px] text-primary uppercase mb-2">Leave a review</div>
+      ${starPickerHtml(b.id)}
+      <textarea id="comment-${b.id}" rows="2" placeholder="How was the ride?"
+        class="w-full mt-3 bg-surface-container-high border border-outline-variant chamfer-clip-sm p-3 font-body-md text-sm text-on-background"></textarea>
+      <button onclick="submitReview('${b.id}')"
+        class="mt-3 px-6 py-2 bg-primary-container text-on-primary-container font-label-mono text-[10px] uppercase font-bold chamfer-clip-sm hover:brightness-110 transition-all">
+        Submit Review
+      </button>
+    </div>`;
+  }
+
+  function renderBookings() {
+    const wrap = document.getElementById('bookings-list');
+    document.getElementById('no-bookings').classList.toggle('hidden', myBookings.length > 0);
+
+    wrap.innerHTML = myBookings.map(b => {
+      const style = STATUS_STYLE[b.status] || { label: b.status || 'Unknown', cls: 'text-on-surface-variant border-outline-variant' };
+      const dateStr = b.reservationDate ? new Date(b.reservationDate).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+      const cancellable = ['pending', 'approved', 'waitlist'].includes(b.status);
+      // Receipts only make sense once the vehicle has actually gone out —
+      // matches getTransactions()'s own 'ongoing' / 'completed' filter.
+      const showReceipt = ['ongoing', 'completed'].includes(b.status);
+      return `
+      <div class="bg-surface-container-low border border-outline-variant chamfer p-6">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div class="font-display-lg text-xl uppercase">${escapeHtml(b.vehicleName || b.vehicleId || 'Vehicle')}</div>
+            <div class="font-label-mono text-[10px] text-on-surface-variant/60 uppercase mt-1">Ref ${escapeHtml(b.id)} · ${dateStr} · ${b.days || 0} day(s)</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-label-mono text-[10px] uppercase px-3 py-1 border chamfer-clip-sm ${style.cls}">${style.label}</span>
+            <span class="font-display-lg text-lg text-primary">${b.total ? '₱' + Number(b.total).toLocaleString('en-PH') : '—'}</span>
+          </div>
+        </div>
+        ${b.status === 'waitlist' ? `<p class="font-label-mono text-[10px] text-secondary uppercase mt-3">This vehicle is currently reserved by another rider/driver — you'll be auto-approved the moment it's free.</p>` : ''}
+        ${b.status === 'rejected' && b.rejectionReason ? `<p class="font-label-mono text-[10px] text-error uppercase mt-3">Reason: ${escapeHtml(b.rejectionReason)}</p>` : ''}
+        <div class="flex items-center gap-5 mt-4">
+          ${cancellable ? `<button onclick="cancelMyBooking('${b.id}', '${b.status}')" class="font-label-mono text-[10px] text-on-surface-variant/50 uppercase hover:text-error transition-colors">Cancel Reservation</button>` : ''}
+          ${showReceipt ? `
+          <a href="receipt.html?bookingId=${encodeURIComponent(b.id)}"
+             class="font-label-mono text-[10px] text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">receipt_long</span> View Receipt
+          </a>` : ''}
+        </div>
+        ${b.status === 'completed' ? reviewBlock(b) : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function cancelMyBooking(bookingId, status) {
+    if (!confirm('Cancel this reservation?')) return;
+    WRG.api.cancelReservation(bookingId, status)
+      .then(() => { WRG.toast('Reservation cancelled'); loadBookings(); })
+      .catch(err => WRG.toast(err.message || 'Could not cancel reservation'));
+  }
+
+  function submitReview(bookingId) {
+    const b = myBookings.find(x => String(x.id) === String(bookingId));
+    const wrap = document.getElementById('stars-' + bookingId);
+    const rating = Number(wrap?.dataset.rating || 0);
+    if (!rating) { WRG.toast('Please select a star rating'); return; }
+    const comment = document.getElementById('comment-' + bookingId).value.trim();
+    WRG.api.submitReview({ bookingId, vehicleId: b?.vehicleId, vehicleName: b?.vehicleName, rating, comment })
+      .then(() => { WRG.toast('Review submitted — thank you!'); loadBookings(); })
+      .catch(err => WRG.toast(err.message || 'Could not submit review'));
+  }
+</script>
+</body></html>
